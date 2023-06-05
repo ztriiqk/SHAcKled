@@ -2050,7 +2050,7 @@ local unload = false
             local url = "https://raw.githubusercontent.com/ztriiqk/SHAcKled/main/version.txt"
             local content = get.GitHubPageContent(url)
             if content then
-                local currentVersion = "1.1"
+                local currentVersion = "1.0"
                 if content ~= currentVersion then
                     PrintConsole("\nSHAcKled.lua - version is outdated, download new version.\n")
                     local updateUrl = "https://raw.githubusercontent.com/ztriiqk/SHAcKled/main/update.txt"
@@ -2067,7 +2067,7 @@ local unload = false
                     local fileUrl = "https://raw.githubusercontent.com/ztriiqk/SHAcKled/main/Shackled.lua"
                     local fileContent = get.GitHubPageContent(fileUrl)
                     if fileContent then
-                        
+
                         local handle = io.popen("pwd")
                         local currentDirectory = handle:read("*a")
                         handle:close()
