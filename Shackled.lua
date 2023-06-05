@@ -2052,7 +2052,7 @@ local unload = false
             if content then
                 local currentVersion = "1.0"
                 if content ~= currentVersion then
-                    PrintConsole("\nSHAcKled.lua - version is outdated, download new version.\n")
+                    PrintConsole("\nSHAcKled.lua - version is outdated, downloading new version.\n")
                     local updateUrl = "https://raw.githubusercontent.com/ztriiqk/SHAcKled/main/update.txt"
                     local updateContent = get.GitHubPageContent(updateUrl)
                     local lines = {}
