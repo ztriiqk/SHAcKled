@@ -1,5 +1,5 @@
 local bit = require("bit32")
-local luaVersion = "1.0"
+local luaVersion = "1.1"
 local unload = false
 
 --Timers 
@@ -2048,7 +2048,7 @@ local unload = false
         end
 
     function get.updateInfo()
-            local url = "https://raw.githubusercontent.com/ztriiqk/SHAcKled/main/version.txt"
+            local url = "https://raw.githubusercontent.com/ztriiqk/SHAcKled/main/update.txt"
             local content = get.GitHubPageContent(url)
             if content then
                 local versionPattern = "(.-)\n"
@@ -2060,7 +2060,7 @@ local unload = false
                     local firstLine = true
                     for line in content:gmatch("[^\r\n]+") do
                         if firstLine then
-                            PrintConsole("SHAcKled Version: "..line.."\n\nPatch Notes:")
+                            PrintConsole("SHAcKled Version: "..line.."\nPatch Notes:")
                         else
                             PrintConsole(line)
                         end
