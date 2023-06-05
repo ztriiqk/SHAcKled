@@ -2067,7 +2067,15 @@ local unload = false
                     local fileUrl = "https://raw.githubusercontent.com/ztriiqk/SHAcKled/main/Shackled.lua"
                     local fileContent = get.GitHubPageContent(fileUrl)
                     if fileContent then
-                        local file = io.open(Config_path.."Shackled.lua", "w")
+                        
+                        local handle = io.popen("pwd")
+                        local currentDirectory = handle:read("*a")
+                        handle:close()
+
+                        local scriptPath = debug.getinfo(1, "S").source:sub(2)
+                        local scriptName = scriptPath:match("[^/\\]+$")
+
+                        local file = io.open(Config_path..""..scriptName, "w")
                         if file then
                             file:write(fileContent)
                             file:close()
