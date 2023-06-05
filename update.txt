@@ -1,1 +1,2 @@
 1.0
+Fix slide-master where it persists slide speed while Local player is dead
