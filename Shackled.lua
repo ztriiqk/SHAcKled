@@ -2064,19 +2064,19 @@ local unload = false
                     local changes = table.concat(lines, "\n")
                     PrintConsole(changes)
         
-                    local fileUrl = "https://raw.githubusercontent.com/ztriiqk/SHAcKled/main/novo_arquivo.lua"
+                    local fileUrl = "https://raw.githubusercontent.com/ztriiqk/SHAcKled/main/Shackled.lua"
                     local fileContent = get.GitHubPageContent(fileUrl)
                     if fileContent then
-                        local file = io.open(Config_path.."novo_arquivo.lua", "w")
+                        local file = io.open(Config_path.."Shackled.lua", "w")
                         if file then
                             file:write(fileContent)
                             file:close()
-                            PrintConsole("Arquivo baixado com sucesso.")
+                            PrintConsole("Download completed, Refresh lua.")
                         else
-                            PrintConsole("Erro ao abrir o arquivo para escrita.")
+                            PrintConsole("Error writting file.")
                         end
                     else
-                        PrintConsole("Erro ao baixar o arquivo.")
+                        PrintConsole("Erro downloading file.")
                     end
                 else
                     PrintConsole("\nSHAcKled.lua is up to date.\n")
