@@ -1,6 +1,6 @@
-added nothing 
-added nothing 2
-added nothing 3
-added nothing 4
-added nothing 5
-added nothing 6
+PrintConsole("added nothing 
+\nadded nothing 2
+\nadded nothing 3
+\nadded nothing 4
+\nadded nothing 5
+\nadded nothing 6")
