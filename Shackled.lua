@@ -1,4 +1,5 @@
 local bit = require("bit32")
+local luaVersion = "1.0"
 local unload = false
 
 --Timers 
@@ -2046,23 +2047,25 @@ local unload = false
             return result
         end
 
-        function get.updateInfo()
+    function get.updateInfo()
             local url = "https://raw.githubusercontent.com/ztriiqk/SHAcKled/main/version.txt"
             local content = get.GitHubPageContent(url)
             if content then
-                local currentVersion = "1.0"
-                if content ~= currentVersion then
-                    PrintConsole("\nSHAcKled.lua - version is outdated, downloading new version.\n")
-                    local updateUrl = "https://raw.githubusercontent.com/ztriiqk/SHAcKled/main/update.txt"
-                    local updateContent = get.GitHubPageContent(updateUrl)
-                    local lines = {}
-                    for line in updateContent:gmatch("[^\r\n]+") do
-                        if line ~= currentVersion then
-                            table.insert(lines, line)
+                local versionPattern = "(.-)\n"
+                local version = content:match(versionPattern)
+                
+                if version and version ~= luaVersion then
+                    PrintConsole("\nSHAcKled.lua - version is outdated, downloading new version")
+
+                    local firstLine = true
+                    for line in content:gmatch("[^\r\n]+") do
+                        if firstLine then
+                            PrintConsole("SHAcKled Version: "..line.."\n\nPatch Notes:")
+                        else
+                            PrintConsole(line)
                         end
+                        firstLine = false
                     end
-                    local changes = table.concat(lines, "\n")
-                    PrintConsole(changes)
         
                     local fileUrl = "https://raw.githubusercontent.com/ztriiqk/SHAcKled/main/Shackled.lua"
                     local fileContent = get.GitHubPageContent(fileUrl)
