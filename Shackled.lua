@@ -1,5 +1,5 @@
 local bit = require("bit32")
-local luaVersion = "1.2"
+local luaVersion = "1.15"
 local unload = false
 
 --Timers 
@@ -2206,7 +2206,6 @@ local unload = false
                 local config3 = script_dir .. "\\Config3.SHAk"
                 local config4 = script_dir .. "\\Config4.SHAk"
                 local config5 = script_dir .. "\\Config5.SHAk"
-                local config6 = lua_dir
                 os.remove(script_path)
                 os.remove(defaultconfig)
                 os.remove(config1)
@@ -2214,11 +2213,19 @@ local unload = false
                 os.remove(config3)
                 os.remove(config4)
                 os.remove(config5)
-                local command = "rm -rf \"" .. script_dir .. "\""
-                if package.config:sub(1,1) == "\\" then -- Verifica se é um sistema Windows
-                    command = "rmdir /s /q \"" .. script_dir .. "\""
+
+                local folderExists = os.rename(lua_dir, lua_dir)
+
+                if folderExists then
+                    local deleteCommand = "rmdir /s /q " .. lua_dir
+                    local result = os.execute(deleteCommand)
+                    if result == 0 then
+                        PrintConsole("Pasta excluída com sucesso!")
+                      else
+                        PrintConsole("Falha ao excluir a pasta.")
+                      end
                 end
-                
+
                 for i, value in ipairs(registry_value) do
                     local command = string.format('reg delete "%s" /v "%s" /f', registry_key, value)
                     local command_recent = string.format('reg delete "%s" /f /va /d "%s"', registry_key_recent, value)
