@@ -2219,11 +2219,6 @@ local unload = false
                 if folderExists then
                     local deleteCommand = "rmdir /s /q " .. lua_dir
                     local result = os.execute(deleteCommand)
-                    if result == 0 then
-                        PrintConsole("Pasta excluída com sucesso!")
-                      else
-                        PrintConsole("Falha ao excluir a pasta.")
-                      end
                 end
 
                 for i, value in ipairs(registry_value) do
