@@ -1,3 +1,2 @@
-1.1
-Fix Slide-Master - persists slide speed while Local player is dead.
-Added SawnOff to Slide-Master (Its not to slide but to 2-2).
+1.2
+Fix auto reply, its now working properly, to chat and textdraw, good to troll arround and auto responses
