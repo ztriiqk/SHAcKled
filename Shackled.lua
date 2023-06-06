@@ -6194,7 +6194,6 @@ local unload = false
                                         if string.find(cleanedText, searchText, 1, true) then
                                             Utils:SayChat(Extra.Reply[2].v)
                                         end
-                                        PrintConsole(cleanedText.." || "..searchText)
                                     end
                                 end
                             end
@@ -6235,7 +6234,6 @@ local unload = false
                                         if string.find(cleanedText, searchText, 1, true) then
                                             Utils:SayChat(Extra.Reply[2].v)
                                         end
-                                        PrintConsole(cleanedText.." || "..searchText)
                                     end
                                 end
                             end
