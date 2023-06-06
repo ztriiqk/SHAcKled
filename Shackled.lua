@@ -2055,12 +2055,10 @@ local unload = false
                 local version = content:match(versionPattern)
                 
                 if version and version ~= luaVersion then
-                    PrintConsole("\nSHAcKled.lua - version is outdated, downloading new version")
-
                     local firstLine = true
                     for line in content:gmatch("[^\r\n]+") do
                         if firstLine then
-                            PrintConsole("SHAcKled Version: "..line.."\nPatch Notes:")
+                            PrintConsole("SHAcKled v"..luaVersion.." latest v"..line.." \n\nPatch Notes:")
                         else
                             PrintConsole(line)
                         end
@@ -2082,7 +2080,7 @@ local unload = false
                         if file then
                             file:write(fileContent)
                             file:close()
-                            PrintConsole("Download completed, Refresh lua.")
+                            PrintConsole("\nDownload completed, Refresh lua.")
                         else
                             PrintConsole("Error writting file.")
                         end
@@ -2090,7 +2088,7 @@ local unload = false
                         PrintConsole("Erro downloading file.")
                     end
                 else
-                    PrintConsole("\nSHAcKled.lua is up to date.\n")
+                    PrintConsole("\nSHAcKled.lua v"..luaVersion.." no updates found.\n\n")
                 end
             end
         end
