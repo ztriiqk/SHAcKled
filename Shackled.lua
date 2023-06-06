@@ -1,5 +1,5 @@
 local bit = require("bit32")
-local luaVersion = "1.1"
+local luaVersion = "1.2"
 local unload = false
 
 --Timers 
@@ -2639,7 +2639,7 @@ local unload = false
                 output = output .. string.format("Extra.RemoveObjectTemp.Enable = %s",Extra.RemoveObjectTemp.Enable.v) .. "\n"
                 output = output .. string.format("Extra.RemoveObjectTemp.Key = %d",Extra.RemoveObjectTemp.Key.v) .. "\n"
                 output = output .. string.format("Extra.RemoveObjectTemp.Time = %d",Extra.RemoveObjectTemp.Time.v) .. "\n"
-                output = output .. string.format("Extra.Mobile = %s",Extra.AutoReply[0].v) .. "\n"
+                output = output .. string.format("Extra.Mobile = %s",Extra.Mobile.v) .. "\n"
                 output = output .. string.format("Extra.AutoReply0 = %s",Extra.AutoReply[0].v) .. "\n"
                 output = output .. string.format("Extra.AutoReply1 = %s",Extra.AutoReply[1].v) .. "\n"
                 output = output .. string.format("Extra.AutoReply2 = %s",Extra.AutoReply[2].v) .. "\n"
@@ -3724,7 +3724,6 @@ local unload = false
         end
         return file_found
         end
-        
     function get.Folder(folder_name)
         local ok, err, code = os.rename(folder_name, folder_name)
         if code == 13 or ok or code == 17 then
@@ -6158,20 +6157,85 @@ local unload = false
                             end
                         end
                     end
-                --SendClientMessage
-                    if rpcId == 93 then
-                        if Extra.AutoReply[1].v then
-                            bsWrap:ResetReadPointer(bsData)
-                            local color = bsWrap:Read32(bsData)
-                            local dMessageLength = bsWrap:Read32(bsData)
-                            local buf = ImBuffer(dMessageLength)
-                            bsWrap:ReadBuf(bsData,buf,dMessageLength)
-                            local splittext = get.Split(string.lower(buf.v), " ")
-                            for i = 0, 20 do
-                            --AutoReply
-                                if Extra.AutoReply[0].v and Extra.AutoReply[1].v then
-                                    if buf.v == Extra.Message[1].v or splittext[i] == Extra.Message[1].v then
-                                        Utils:SayChat(Extra.Reply[1].v)
+                --Auto Reply~
+                    if Extra.AutoReply[0].v then
+                        if rpcId == 93 then
+                            if Extra.AutoReply[1].v then
+                                bsWrap:ResetReadPointer(bsData)
+                                local color = bsWrap:Read32(bsData)
+                                local dMessageLength = bsWrap:Read32(bsData)
+                                local buf = ImBuffer(dMessageLength)
+                                bsWrap:ReadBuf(bsData, buf, dMessageLength)
+                        
+                                if buf.v ~= nil then
+                                    local cleanedText = string.gsub(buf.v, "{%a+}", "")
+                                    local cleanedText = string.lower(cleanedText)
+                                    if cleanedText ~= "" then
+                                        local searchText = string.lower(Extra.Message[1].v)
+                                        if string.find(cleanedText, searchText, 1, true) then
+                                            Utils:SayChat(Extra.Reply[1].v)
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                        if rpcId == 105 then
+                            if Extra.AutoReply[2].v then
+                                bsWrap:ResetReadPointer(bsData)
+                                local wTextDrawID = bsWrap:Read16(bsData)
+                                local TextLength = bsWrap:Read16(bsData)
+                                local buf = ImBuffer(TextLength)
+                                bsWrap:ReadBuf(bsData, buf, TextLength)
+                                if buf.v ~= nil then
+                                    local cleanedText = string.gsub(buf.v, "{%a+}", "")
+                                    local cleanedText = string.lower(cleanedText)
+                                    if cleanedText ~= "" then
+                                        local searchText = string.lower(Extra.Message[2].v)
+                                        if string.find(cleanedText, searchText, 1, true) then
+                                            Utils:SayChat(Extra.Reply[2].v)
+                                        end
+                                        PrintConsole(cleanedText.." || "..searchText)
+                                    end
+                                end
+                            end
+                        end
+                        if rpcId == 134 then
+                            if Extra.AutoReply[2].v then
+                                bsWrap:ResetReadPointer(bsData)
+                                local wTextDrawID = bsWrap:Read16(bsData) 
+                                local Flags = bsWrap:Read8(bsData) 
+                                local fLetterWidth = bsWrap:ReadFloat(bsData) 
+                                local fLetterHeight = bsWrap:ReadFloat(bsData) 
+                                local dLetterColor = bsWrap:Read32(bsData) 
+                                local fLineWidth = bsWrap:ReadFloat(bsData) 
+                                local fLineHeight = bsWrap:ReadFloat(bsData) 
+                                local dBoxColor = bsWrap:Read32(bsData) 
+                                local Shadow = bsWrap:Read8(bsData) 
+                                local Outline = bsWrap:Read8(bsData) 
+                                local dBackgroundColor = bsWrap:ReadFloat(bsData) 
+                                local Style = bsWrap:Read8(bsData) 
+                                local Selectable = bsWrap:Read8(bsData) 
+                                local fX = bsWrap:ReadFloat(bsData) 
+                                local fY = bsWrap:ReadFloat(bsData) 
+                                local wModelID = bsWrap:Read16(bsData) 
+                                local fRotX = bsWrap:ReadFloat(bsData) 
+                                local fRotY = bsWrap:ReadFloat(bsData) 
+                                local fRotZ = bsWrap:ReadFloat(bsData) 
+                                local fZoom = bsWrap:ReadFloat(bsData) 
+                                local wColor1 = bsWrap:Read16(bsData) 
+                                local wColor2 = bsWrap:Read16(bsData) 
+                                local szTextLen = bsWrap:Read16(bsData) 
+                                local buf = ImBuffer(szTextLen)
+                                bsWrap:ReadBuf(bsData, buf, szTextLen)
+                                if buf.v ~= nil then
+                                    local cleanedText = string.gsub(buf.v, "{%a+}", "")
+                                    local cleanedText = string.lower(cleanedText)
+                                    if cleanedText ~= "" then
+                                        local searchText = string.lower(Extra.Message[2].v)
+                                        if string.find(cleanedText, searchText, 1, true) then
+                                            Utils:SayChat(Extra.Reply[2].v)
+                                        end
+                                        PrintConsole(cleanedText.." || "..searchText)
                                     end
                                 end
                             end
@@ -12495,18 +12559,14 @@ local unload = false
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("To Message", Extra.AutoReply[1])
                     Menu:Text("")Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:Text("  Message: ") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+105,SHAkMenu.menutransitorstaticreversed+105) Menu:Text("  Reply With: ") 
                     Menu:Text("")Menu:SameLine(SHAkMenu.menutransitorstaticreversed+10,SHAkMenu.menutransitorstaticreversed+10) 
-                    if Menu:InputText("##1", Extra.Message[1]) then
-                        Extra.Message[1].v = string.lower(Extra.Message[1].v)
-                    end
+                    Menu:InputText("##1", Extra.Message[1])
                     Menu:SameLine(SHAkMenu.menutransitorstaticreversed+60,SHAkMenu.menutransitorstaticreversed+60) Menu:SameLine(SHAkMenu.menutransitorstaticreversed+100,SHAkMenu.menutransitorstaticreversed+100) 
                     Menu:InputText("##2", Extra.Reply[1])
                     Menu:Separator()
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("To TextDraw", Extra.AutoReply[2])
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:Text("  Message: ") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+105,SHAkMenu.menutransitorstaticreversed+105) Menu:Text("  Reply With: ") 
                     Menu:Text("")Menu:SameLine(SHAkMenu.menutransitorstaticreversed+10,SHAkMenu.menutransitorstaticreversed+10) 
-                    if Menu:InputText("##4", Extra.Message[2]) then
-                        Extra.Message[2].v = string.lower(Extra.Message[2].v)
-                    end
+                    Menu:InputText("##4", Extra.Message[2])
                     Menu:SameLine(SHAkMenu.menutransitorstaticreversed+60,SHAkMenu.menutransitorstaticreversed+60) Menu:SameLine(SHAkMenu.menutransitorstaticreversed+100,SHAkMenu.menutransitorstaticreversed+100)
                     Menu:InputText("##3", Extra.Reply[2])
                     Menu:Separator()
