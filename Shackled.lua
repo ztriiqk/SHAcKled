@@ -6360,9 +6360,9 @@ local unload = false
                     end
                 end
             --NOPS
-                if NOPs.Receive[rpcId] ~= nil then
+                if NOPs.Receive[rpcId] ~= nil thenl
                     if NOPs.Receive[rpcId].v then
-                        local message = ImBuffer("NOPs OnReceiveRPC - ".. RPC[rpcId] .." ID: (".. rpcId ..")",155) endMessage(message, 0xFF000000)
+                        local message = ImBuffer("NOPs OnReceiveRPC - ".. RPC[rpcId] .." ID: (".. rpcId ..")",155) send.Message(message, 0xFF000000)
                         PrintConsole("NOPs OnReceiveRPC - ".. RPC[rpcId] .." ID: (".. rpcId ..")")
                         return false
                     end
