@@ -1,5 +1,5 @@
 local bit = require("bit32")
-local luaVersion = "1.15"
+local luaVersion = "1.16"
 local unload = false
 
 --Timers 
@@ -5964,6 +5964,7 @@ local unload = false
             end
         local function OnReceiveRPC(rpcId, bsData)
                     if Panic.EveryThingExceptVisuals.v == false and unload == false then
+                        bsWrap:ResetReadPointer(bsData)
                     if rpcId == 24 then
                         local wVehicleID = bsWrap:Read16(bsData)
                         local Engine = bsWrap:Read8(bsData)
@@ -6157,11 +6158,10 @@ local unload = false
                             end
                         end
                     end
-                --Auto Reply~
+                --Auto Reply
                     if Extra.AutoReply[0].v then
                         if rpcId == 93 then
                             if Extra.AutoReply[1].v then
-                                bsWrap:ResetReadPointer(bsData)
                                 local color = bsWrap:Read32(bsData)
                                 local dMessageLength = bsWrap:Read32(bsData)
                                 local buf = ImBuffer(dMessageLength)
@@ -6179,9 +6179,28 @@ local unload = false
                                 end
                             end
                         end
+                        if rpcId == 101 then
+                            if Extra.AutoReply[1].v then
+                                local PlayerID = bsWrap:Read16(bsData)
+                                if PlayerID ~= vMy.ID then
+                                    local Length = bsWrap:Read8(bsData)
+                                    local buf = ImBuffer(Length)
+                                    bsWrap:ReadBuf(bsData, buf, Length)
+                                    if buf.v ~= nil then
+                                        local cleanedText = string.gsub(buf.v, "{%a+}", "")
+                                        local cleanedText = string.lower(cleanedText)
+                                        if cleanedText ~= "" then
+                                            local searchText = string.lower(Extra.Message[1].v)
+                                            if string.find(cleanedText, searchText, 1, true) then
+                                                Utils:SayChat(Extra.Reply[1].v)
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
                         if rpcId == 105 then
                             if Extra.AutoReply[2].v then
-                                bsWrap:ResetReadPointer(bsData)
                                 local wTextDrawID = bsWrap:Read16(bsData)
                                 local TextLength = bsWrap:Read16(bsData)
                                 local buf = ImBuffer(TextLength)
@@ -6200,7 +6219,6 @@ local unload = false
                         end
                         if rpcId == 134 then
                             if Extra.AutoReply[2].v then
-                                bsWrap:ResetReadPointer(bsData)
                                 local wTextDrawID = bsWrap:Read16(bsData) 
                                 local Flags = bsWrap:Read8(bsData) 
                                 local fLetterWidth = bsWrap:ReadFloat(bsData) 
@@ -6261,7 +6279,7 @@ local unload = false
                     local vMyPos = CVector(vMy.Pos.fX,vMy.Pos.fY,vMy.Pos.fZ)
                     local Vector = CVector(floatX,floatY,floatZ)
 
-                    local   distance = Utils:Get2Ddist(vMyPos ,Vector)
+                    local distance = Utils:Get2Ddist(vMyPos, Vector)
 
                     if Extra.AntiSlapper.v then
                         if floatZ - vMy.Pos.fZ >= 1 or floatZ - vMy.Pos.fZ <= -1 then
@@ -6271,12 +6289,12 @@ local unload = false
                         end
                     end
                     if Vehicle.DriveNoLicense.v then
-                        if  distance < 2 then
+                        if distance < 2 then
                             return false
                         end
                     end
                     if SHAcKvar.Teleporting[1] == 1 then
-                        if  distance < Teleport.OnFootVelocity.v+1 or  distance < Teleport.InCarVelocity.v+1 then
+                        if distance < Teleport.OnFootVelocity.v+1 or distance < Teleport.InCarVelocity.v+1 then
                             if vAmI.Driver then
                                 local veh = vMy.Vehicle
                                 bsWrap:Reset(bsData)
@@ -7309,10 +7327,31 @@ local unload = false
                     end
                 --FastExit
                     if rpcId == 154 then
+                        local vehicle = bsWrap:Read16(bsData)
                         if Vehicle.FastExit.v then
                             if vAmI.Driver or vAmI.Passenger then
-                                --set.VehicleVelocity(0, 0, 0)
-                                set.PlayerPos(vMy.Pos.fX, vMy.Pos.fY, vMy.Pos.fZ+1)
+                                bsWrap:Reset(bsData)
+                                local vModel = Cars:getCarModel(vehicle)
+                                if vehicleInfo[vModel].type ~= VehicleType.Bike and vehicleInfo[vModel].type ~= VehicleType.Bicycle and vehicleInfo[vModel].type ~= VehicleType.RC then
+                                    local vMyPelvis = Players:getBonePosition(vMy.ID, 1)
+                                    local vMyRClav = Players:getBonePosition(vMy.ID, 51)
+                                    local vMyLClav = Players:getBonePosition(vMy.ID, 41)
+                                    local expectedPos
+                                    if vAmI.Driver then
+                                        expectedPos = (vMyPelvis - vMyRClav) * 12
+                                    else
+                                        expectedPos = (vMyPelvis - vMyLClav) * 12
+                                    end
+                                    expectedPos = expectedPos + vMyPelvis
+                                    set.PlayerPos(expectedPos.fX, expectedPos.fY, expectedPos.fZ)
+                                else
+                                    if vehicleInfo[vModel].type == VehicleType.RC then
+                                        local vMyPos = Cars:getCarPosition(vehicle)
+                                        set.PlayerPos(vMyPos.fX, vMyPos.fY, vMyPos.fZ)
+                                    else
+                                        set.PlayerPos(vMy.Pos.fX, vMy.Pos.fY, vMy.Pos.fZ+1)
+                                    end
+                                end
                             end
                         end
                     end
@@ -7414,13 +7453,8 @@ local unload = false
                         v.enteringvehicle = 0
                     end
                 --CMDS
-                    if (rpcId == 50 or rpcId == 101) then
-                        local commandlength
-                        if rpcId == 101 then
-                            commandlength = bsWrap:Read8(bsData)
-                        else
-                            commandlength = bsWrap:Read32(bsData)
-                        end
+                    if (rpcId == 50 ) then
+                        local commandlength = bsWrap:Read32(bsData)
                         local buf = ImBuffer(commandlength)
                         bsWrap:ReadBuf(bsData,buf,commandlength)
                         local splitted = get.Split(string.lower(buf.v), " ")
@@ -8475,9 +8509,6 @@ local unload = false
                                         local vMyBone = Players:getBonePosition(vMy.ID, 22)
                                         origin = CVector(vMyBone.fX, vMyBone.fY, vMyBone.fZ)
                                     end
-
-                                    --Build BulletData
-                                    local myBulletData = get.BulletData()
                                     
                                     --Build BulletData
                                         local myBulletData = get.BulletData()
