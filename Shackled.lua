@@ -9699,6 +9699,8 @@ local unload = false
                             end
                         end
                     end
+                else
+                    PickUP = Timers(Extra.PickUP.Delay.v)
                 end
             end
         --Extra WS
