@@ -1,5 +1,5 @@
 local bit = require("bit32")
-local luaVersion = "1.16"
+local luaVersion = "1.17"
 local unload = false
 
 --Timers 
@@ -36,6 +36,7 @@ local unload = false
             
         local ms = Timers(1)
         local SendCMD = Timers(1)
+        local PickUP = Timers(1)
         local Macro = Timers(10)
         local Timerss = Timers(10)
         local getMyVars = Timers(15)
@@ -842,12 +843,23 @@ local unload = false
                 AntiAFK = ImBool(false),
                 SetWeaponSkill = ImBool(false),
                 SetWeaponSkillLevel = ImInt(0), 
-                SendCMD = ImBool(false),
-                SendCMDCommand = ImBuffer("healme",20),
-                SendCMDTimes = ImInt(1),
-                SendCMDDelay = ImInt(2000),
-                SendCMDHP = ImInt(0),
-                SendCMDArmour = ImInt(0),
+                SendCMD = {
+                    Enable = ImBool(false),
+                    Command = ImBuffer("healme",20),
+                    Times = ImInt(1),
+                    Delay = ImInt(2000),
+                    HP = ImInt(0),
+                    Armour = ImInt(0)
+                },
+                PickUP = { 
+                    Enable = ImBool(false),
+                    Model1 = ImInt(11736),
+                    Model2 = ImInt(11738),
+                    Model3 = ImInt(1242),
+                    Delay = ImInt(1000),
+                    HP = ImInt(100),
+                    Armour = ImInt(10)
+                },
                 RequestSpawn = ImBool(false),
                 RequestSpawnHP = ImInt(0),
                 RequestSpawnArmour = ImInt(0),
@@ -1347,7 +1359,128 @@ local unload = false
             walk = 0,
             tab = 0
         }
-    local RPC = {
+    local RPC = {}
+    local CVehicleST = Utils:readMemory(0xB6F980, 4, false)
+    local CPedST = Utils:readMemory(0xB6F5F0, 4, false)
+    local memory = {
+            ExtraWS = {},
+            CPed = {},
+            CVehicle = {}
+        }
+    local vMy = {}
+    local vAmI = {}
+    local vEn = {
+            ICData = {},
+            OFData = {},
+            Driver = {},
+            Passenger = {},
+            Pos = {},
+            HP = {},
+            Armor = {},
+            isFilterPlayer = {},
+            isFilterSkin = {},
+            Weapon = {},
+            Skin = {},
+            Color = {},
+            Name = {},
+            Vehicle = {},
+            Lag = {}
+        }
+    local m_offsets = {}
+        m_offsets.m_samp_info = {0x21A0F8, 0, 0x26E8DC, 0, 0, 0x2ACA24}
+        m_offsets.m_settings = {0x3C5, 0, 0x3D5, 0, 0, 0x3D5}
+        m_offsets.m_game_state = {0x3BD, 0, 0x3CD, 0, 0, 0x3CD}
+        m_offsets.m_pools = {0x3CD, 0, 0x3DE, 0, 0, 0x3DE}
+        
+        m_offsets.m_server_addr = {0x20, 0, 0x30, 0, 0, 0x30}
+        m_offsets.m_server_port = {0x225, 0, 0x235, 0, 0, 0x235}
+    local OnFootData = {}
+    local BulletData = {}
+    local AimData = {}
+    local get = {}
+    local set = {}
+    local maths = {}
+    local read = {}
+    local send = {}
+    local Pickups = {}
+-- 
+--! Variables
+    local v =
+        {
+            PickUP = 0,
+            SendCMD = 0,
+            SampVer = Utils:getSampVer()+1,
+            SampAdr = Utils:getSampDLL(),
+            StunTimer = 0,
+            StunCount = Movement.AntiStun.MinChance.v,
+            SmartStunCount = 0,
+            SniperProt = 0,
+            KBDraw1 = 0,
+            KBDraw2 = 0,
+            cefini = 0,
+            Wait = 0,
+            shooting = 0,
+            TargetFakeLag = -1,
+            enteringvehicle = 0,
+            filteringid = -1,
+            filterIdtoSHAk = -1,
+            filterSkintoSHAk = -1,
+            filtertimer = 0,
+            AutoReply2 = 0,
+            SilentPlayerID = -1,
+            DamagerPlayerID = -1,
+            getCrosshair = 1,
+            CrosshairTimer = 0,
+            NoFall = 0, 
+            TeleportCounter = 0,
+            Cfgbrokenlines = 0,
+            lastweapon = -1,
+            Hww2 = 0,
+            menutyped = 0,
+            button = 0,
+            ConfigsDefault = {},
+            ConfigsDefaults = "Default",
+            Overwritetimer = 0,
+            HideDraws = {},
+            ShowDraws = {},
+            WaitForPickLag = 0,
+            DamagerCbug = 0,
+            DrivingPlayerID = -1,
+            Troller = -1,
+            savedNoTirePop = 0,
+            iCamModeCount = 0,
+            fuckerpertimer = {},
+            Bypass = 0,
+            ACBypass = 0,
+            bufferLength = 30,
+            bufferText = "                              SHAcKled",
+            BuffShackled = 0,
+            colorBorder1 = 0,
+            colorBorder2 = 0,
+            colorShackled = 0,
+            IndicatorIntervals = {},
+            startValue = 0,
+            endValue = 2
+        }
+    Shackled = {}
+        Shackled[1] = ImBuffer("SHAcKled", v.bufferLength)
+
+        for i = 1, 64 do
+            Shackled[i] = ImBuffer(v.bufferText .. string.rep(" ", (34-i)*2), v.bufferLength)
+            v.bufferText = string.sub(v.bufferText, 2)
+        end
+        v.BuffShackled = Shackled[1].v
+
+        for i = 1, 64 do
+            v.IndicatorIntervals[i] = {v.startValue, v.endValue}
+            v.startValue = v.endValue
+            v.endValue = v.endValue + 2
+        end
+
+--
+--! CFG
+    function get.RPC()
+        RPC = {
             "nil",
             "nil",
             "nil",
@@ -1527,123 +1660,8 @@ local unload = false
             "nil",
             "SetActorHealth"
         }
-    local CVehicleST = Utils:readMemory(0xB6F980, 4, false)
-    local CPedST = Utils:readMemory(0xB6F5F0, 4, false)
-    local memory = {
-            ExtraWS = {},
-            CPed = {},
-            CVehicle = {}
-        }
-    local vMy = {}
-    local vAmI = {}
-    local vEn = {
-            ICData = {},
-            OFData = {},
-            Driver = {},
-            Passenger = {},
-            Pos = {},
-            HP = {},
-            Armor = {},
-            isFilterPlayer = {},
-            isFilterSkin = {},
-            Weapon = {},
-            Skin = {},
-            Color = {},
-            Name = {},
-            Vehicle = {},
-            Lag = {}
-        }
-    local m_offsets = {}
-        m_offsets.m_samp_info = {0x21A0F8, 0, 0x26E8DC, 0, 0, 0x2ACA24}
-        m_offsets.m_settings = {0x3C5, 0, 0x3D5, 0, 0, 0x3D5}
-        m_offsets.m_game_state = {0x3BD, 0, 0x3CD, 0, 0, 0x3CD}
-        m_offsets.m_pools = {0x3CD, 0, 0x3DE, 0, 0, 0x3DE}
-        
-        m_offsets.m_server_addr = {0x20, 0, 0x30, 0, 0, 0x30}
-        m_offsets.m_server_port = {0x225, 0, 0x235, 0, 0, 0x235}
-    local OnFootData = {}
-    local BulletData = {}
-    local AimData = {}
-    local get = {}
-    local set = {}
-    local maths = {}
-    local read = {}
-    local send = {}
--- 
---! Variables
-    local v =
-        {
-            SendCMD = 0,
-            SampVer = Utils:getSampVer()+1,
-            SampAdr = Utils:getSampDLL(),
-            StunTimer = 0,
-            StunCount = Movement.AntiStun.MinChance.v,
-            SmartStunCount = 0,
-            SniperProt = 0,
-            KBDraw1 = 0,
-            KBDraw2 = 0,
-            cefini = 0,
-            Wait = 0,
-            shooting = 0,
-            TargetFakeLag = -1,
-            enteringvehicle = 0,
-            filteringid = -1,
-            filterIdtoSHAk = -1,
-            filterSkintoSHAk = -1,
-            filtertimer = 0,
-            AutoReply2 = 0,
-            SilentPlayerID = -1,
-            DamagerPlayerID = -1,
-            getCrosshair = 1,
-            CrosshairTimer = 0,
-            NoFall = 0, 
-            TeleportCounter = 0,
-            Cfgbrokenlines = 0,
-            lastweapon = -1,
-            Hww2 = 0,
-            menutyped = 0,
-            button = 0,
-            ConfigsDefault = {},
-            ConfigsDefaults = "Default",
-            Overwritetimer = 0,
-            HideDraws = {},
-            ShowDraws = {},
-            WaitForPickLag = 0,
-            DamagerCbug = 0,
-            DrivingPlayerID = -1,
-            Troller = -1,
-            savedNoTirePop = 0,
-            iCamModeCount = 0,
-            fuckerpertimer = {},
-            Bypass = 0,
-            ACBypass = 0,
-            bufferLength = 30,
-            bufferText = "                              SHAcKled",
-            BuffShackled = 0,
-            colorBorder1 = 0,
-            colorBorder2 = 0,
-            colorShackled = 0,
-            IndicatorIntervals = {},
-            startValue = 0,
-            endValue = 2
-        }
-    Shackled = {}
-        Shackled[1] = ImBuffer("SHAcKled", v.bufferLength)
-
-        for i = 1, 64 do
-            Shackled[i] = ImBuffer(v.bufferText .. string.rep(" ", (34-i)*2), v.bufferLength)
-            v.bufferText = string.sub(v.bufferText, 2)
         end
-        v.BuffShackled = Shackled[1].v
-
-        for i = 1, 64 do
-            v.IndicatorIntervals[i] = {v.startValue, v.endValue}
-            v.startValue = v.endValue
-            v.endValue = v.endValue + 2
-        end
-
---
---! CFG
+        get.RPC()
     function get.vehicleInfoFix()
             vehicleInfo[400] = { id = 400, velocity = 164,  type = VehicleType.Car,     name = "Landstalker" }
             vehicleInfo[401] = { id = 401, velocity = 153,  type = VehicleType.Car,     name = "Bravura" }
@@ -2661,12 +2679,19 @@ local unload = false
                 output = output .. string.format("Extra.ExtraWS.PerCategory.Snipers = %s",Extra.ExtraWS.PerCategory.Snipers.v) .. "\n"
                 output = output .. string.format("Extra.SetWeaponSkill = %s",Extra.SetWeaponSkill.v) .. "\n"
                 output = output .. string.format("Extra.SetWeaponSkillLevel = %d",Extra.SetWeaponSkillLevel.v) .. "\n"
-                output = output .. string.format("Extra.SendCMD = %s",Extra.SendCMD.v) .. "\n"
-                output = output .. string.format("Extra.SendCMDCommand = %s",Extra.SendCMDCommand.v) .. "\n"
-                output = output .. string.format("Extra.SendCMDTimes = %d",Extra.SendCMDTimes.v) .. "\n"
-                output = output .. string.format("Extra.SendCMDDelay = %d",Extra.SendCMDDelay.v) .. "\n"
-                output = output .. string.format("Extra.SendCMDHP = %d",Extra.SendCMDHP.v) .. "\n"
-                output = output .. string.format("Extra.SendCMDArmour = %d",Extra.SendCMDArmour.v) .. "\n"
+                output = output .. string.format("Extra.SendCMD.Enable = %s",Extra.SendCMD.Enable.v) .. "\n"
+                output = output .. string.format("Extra.SendCMD.Command = %s",Extra.SendCMD.Command.v) .. "\n"
+                output = output .. string.format("Extra.SendCMD.Times = %d",Extra.SendCMD.Times.v) .. "\n"
+                output = output .. string.format("Extra.SendCMD.Delay = %d",Extra.SendCMD.Delay.v) .. "\n"
+                output = output .. string.format("Extra.SendCMD.HP = %d",Extra.SendCMD.HP.v) .. "\n"
+                output = output .. string.format("Extra.SendCMD.Armour = %d",Extra.SendCMD.Armour.v) .. "\n"
+                output = output .. string.format("Extra.PickUP.Enable = %s",Extra.PickUP.Enable.v) .. "\n"
+                output = output .. string.format("Extra.PickUP.Model1 = %d",Extra.PickUP.Model1.v) .. "\n"
+                output = output .. string.format("Extra.PickUP.Model2 = %d",Extra.PickUP.Model2.v) .. "\n"
+                output = output .. string.format("Extra.PickUP.Model3 = %d",Extra.PickUP.Model3.v) .. "\n"
+                output = output .. string.format("Extra.PickUP.Delay = %d",Extra.PickUP.Delay.v) .. "\n"
+                output = output .. string.format("Extra.PickUP.HP = %d",Extra.PickUP.HP.v) .. "\n"
+                output = output .. string.format("Extra.PickUP.Armour = %d",Extra.PickUP.Armour.v) .. "\n"
                 output = output .. string.format("Extra.RequestSpawn = %s",Extra.RequestSpawn.v) .. "\n"
                 output = output .. string.format("Extra.RequestSpawnHP = %d",Extra.RequestSpawnHP.v) .. "\n"
                 output = output .. string.format("Extra.RequestSpawnArmour = %d",Extra.RequestSpawnArmour.v) .. "\n"
@@ -3265,12 +3290,19 @@ local unload = false
                 Extra.ExtraWS.PerCategory.Snipers = read.BoolFromString(var1[cfglines],"Extra.ExtraWS.PerCategory.Snipers",lines[cfglines]) cfglines = cfglines + 1
                 Extra.SetWeaponSkill = read.BoolFromString(var1[cfglines],"Extra.SetWeaponSkill",lines[cfglines]) cfglines = cfglines + 1
                 Extra.SetWeaponSkillLevel = read.IntFromString(var1[cfglines],"Extra.SetWeaponSkillLevel",lines[cfglines]) cfglines = cfglines + 1
-                Extra.SendCMD = read.BoolFromString(var1[cfglines],"Extra.SendCMD",lines[cfglines]) cfglines = cfglines + 1
-                Extra.SendCMDCommand = read.BufferFromString(var1[cfglines],"Extra.SendCMDCommand",lines[cfglines]) cfglines = cfglines + 1
-                Extra.SendCMDTimes = read.IntFromString(var1[cfglines],"Extra.SendCMDTimes",lines[cfglines]) cfglines = cfglines + 1
-                Extra.SendCMDDelay = read.IntFromString(var1[cfglines],"Extra.SendCMDDelay",lines[cfglines]) cfglines = cfglines + 1
-                Extra.SendCMDHP = read.IntFromString(var1[cfglines],"Extra.SendCMDHP",lines[cfglines]) cfglines = cfglines + 1
-                Extra.SendCMDArmour = read.IntFromString(var1[cfglines],"Extra.SendCMDArmour",lines[cfglines]) cfglines = cfglines + 1
+                Extra.SendCMD.Enable = read.BoolFromString(var1[cfglines],"Extra.SendCMD.Enable",lines[cfglines]) cfglines = cfglines + 1
+                Extra.SendCMD.Command = read.BufferFromString(var1[cfglines],"Extra.SendCMD.Command",lines[cfglines]) cfglines = cfglines + 1
+                Extra.SendCMD.Times = read.IntFromString(var1[cfglines],"Extra.SendCMD.Times",lines[cfglines]) cfglines = cfglines + 1
+                Extra.SendCMD.Delay = read.IntFromString(var1[cfglines],"Extra.SendCMD.Delay",lines[cfglines]) cfglines = cfglines + 1
+                Extra.SendCMD.HP = read.IntFromString(var1[cfglines],"Extra.SendCMD.HP",lines[cfglines]) cfglines = cfglines + 1
+                Extra.SendCMD.Armour = read.IntFromString(var1[cfglines],"Extra.SendCMD.Armour",lines[cfglines]) cfglines = cfglines + 1
+                Extra.PickUP.Enable = read.BoolFromString(var1[cfglines],"Extra.PickUP.Enable",lines[cfglines]) cfglines = cfglines + 1 
+                Extra.PickUP.Model1 = read.IntFromString(var1[cfglines],"Extra.PickUP.Model1",lines[cfglines]) cfglines = cfglines + 1 
+                Extra.PickUP.Model2 = read.IntFromString(var1[cfglines],"Extra.PickUP.Model2",lines[cfglines]) cfglines = cfglines + 1 
+                Extra.PickUP.Model3 = read.IntFromString(var1[cfglines],"Extra.PickUP.Model3",lines[cfglines]) cfglines = cfglines + 1 
+                Extra.PickUP.Delay = read.IntFromString(var1[cfglines],"Extra.PickUP.Delay",lines[cfglines]) cfglines = cfglines + 1 
+                Extra.PickUP.HP = read.IntFromString(var1[cfglines],"Extra.PickUP.HP",lines[cfglines]) cfglines = cfglines + 1 
+                Extra.PickUP.Armour = read.IntFromString(var1[cfglines],"Extra.PickUP.Armour",lines[cfglines]) cfglines = cfglines + 1 
                 Extra.RequestSpawn = read.BoolFromString(var1[cfglines],"Extra.RequestSpawn",lines[cfglines]) cfglines = cfglines + 1
                 Extra.RequestSpawnHP = read.IntFromString(var1[cfglines],"Extra.RequestSpawnHP",lines[cfglines]) cfglines = cfglines + 1
                 Extra.RequestSpawnArmour = read.IntFromString(var1[cfglines],"Extra.RequestSpawnArmour",lines[cfglines]) cfglines = cfglines + 1
@@ -3764,6 +3796,7 @@ local unload = false
             get.Folder(Config_path)
         end
     function get.ScriptTimers()
+            PickUP = Timers(Extra.PickUP.Delay.v)
             DMGTimer = Timers(Damager.Delay.v+5)
             RVankaTimer1 = Timers(Troll.RVanka.Timer.v+5)
         end
@@ -3978,6 +4011,69 @@ local unload = false
                 end
             end
     --Object & Vehicles
+        function get.PickupPool()
+            if v.SampVer == 1 then -- r1
+                local SAMP_INFO_OFFSET = v.SampAdr + 0x21A0F8 
+                SAMP_INFO_OFFSET = Utils:readMemory(SAMP_INFO_OFFSET, 4, false)
+
+                local SAMP_PPOOLS_OFFSET = SAMP_INFO_OFFSET + 0x3CD 
+                SAMP_PPOOLS_OFFSET = Utils:readMemory(SAMP_PPOOLS_OFFSET, 4, false)
+
+                local SAMP_PPOOL_PICKUP_OFFSET = SAMP_PPOOLS_OFFSET + 0x20 
+                SAMP_PPOOL_PICKUP_OFFSET = Utils:readMemory(SAMP_PPOOL_PICKUP_OFFSET, 4, false)
+                return SAMP_PPOOL_PICKUP_OFFSET
+            elseif v.SampVer == 2 then -- r2
+                local SAMP_INFO_OFFSET = v.SampAdr + 0x21A100 
+                SAMP_INFO_OFFSET = Utils:readMemory(SAMP_INFO_OFFSET, 4, false)
+
+                local SAMP_PPOOLS_OFFSET = SAMP_INFO_OFFSET + 0x3C5 
+                SAMP_PPOOLS_OFFSET = Utils:readMemory(SAMP_PPOOLS_OFFSET, 4, false)
+
+                local SAMP_PPOOL_PICKUP_OFFSET = SAMP_PPOOLS_OFFSET + 0x10  
+                SAMP_PPOOL_PICKUP_OFFSET = Utils:readMemory(SAMP_PPOOL_PICKUP_OFFSET, 4, false)
+                return SAMP_PPOOL_PICKUP_OFFSET
+            elseif v.SampVer == 3 then -- r3
+                local SAMP_INFO_OFFSET = v.SampAdr + 0x26E8DC  
+                SAMP_INFO_OFFSET = Utils:readMemory(SAMP_INFO_OFFSET, 4, false)
+
+                local SAMP_PPOOLS_OFFSET = SAMP_INFO_OFFSET + 0x3DE  
+                SAMP_PPOOLS_OFFSET = Utils:readMemory(SAMP_PPOOLS_OFFSET, 4, false)
+
+                local SAMP_PPOOL_PICKUP_OFFSET = SAMP_PPOOLS_OFFSET + 0x10  
+                SAMP_PPOOL_PICKUP_OFFSET = Utils:readMemory(SAMP_PPOOL_PICKUP_OFFSET, 4, false)
+                return SAMP_PPOOL_PICKUP_OFFSET
+            elseif v.SampVer == 4 then -- r4
+                local SAMP_INFO_OFFSET = v.SampAdr + 0x26EA0C  
+                SAMP_INFO_OFFSET = Utils:readMemory(SAMP_INFO_OFFSET, 4, false)
+
+                local SAMP_PPOOLS_OFFSET = SAMP_INFO_OFFSET + 0x3DE 
+                SAMP_PPOOLS_OFFSET = Utils:readMemory(SAMP_PPOOLS_OFFSET, 4, false)
+
+                local SAMP_PPOOL_PICKUP_OFFSET = SAMP_PPOOLS_OFFSET + 0x10 
+                SAMP_PPOOL_PICKUP_OFFSET = Utils:readMemory(SAMP_PPOOL_PICKUP_OFFSET, 4, false)
+                return SAMP_PPOOL_PICKUP_OFFSET
+            elseif v.SampVer == 5 then -- r4-2
+                local SAMP_INFO_OFFSET = v.SampAdr + 0x26EA0C 
+                SAMP_INFO_OFFSET = Utils:readMemory(SAMP_INFO_OFFSET, 4, false)
+
+                local SAMP_PPOOLS_OFFSET = SAMP_INFO_OFFSET + 0x3DE 
+                SAMP_PPOOLS_OFFSET = Utils:readMemory(SAMP_PPOOLS_OFFSET, 4, false)
+
+                local SAMP_PPOOL_PICKUP_OFFSET = SAMP_PPOOLS_OFFSET + 0x8 
+                SAMP_PPOOL_PICKUP_OFFSET = Utils:readMemory(SAMP_PPOOL_PICKUP_OFFSET, 4, false)
+                return SAMP_PPOOL_PICKUP_OFFSET
+            elseif v.SampVer == 5 then -- 03dl
+                local SAMP_INFO_OFFSET = v.SampAdr + 0x2ACA24  
+                SAMP_INFO_OFFSET = Utils:readMemory(SAMP_INFO_OFFSET, 4, false)
+
+                local SAMP_PPOOLS_OFFSET = SAMP_INFO_OFFSET + 0x3DE  
+                SAMP_PPOOLS_OFFSET = Utils:readMemory(SAMP_PPOOLS_OFFSET, 4, false)
+
+                local SAMP_PPOOL_PICKUP_OFFSET = SAMP_PPOOLS_OFFSET + 0x10  
+                SAMP_PPOOL_PICKUP_OFFSET = Utils:readMemory(SAMP_PPOOL_PICKUP_OFFSET, 4, false)
+                return SAMP_PPOOL_PICKUP_OFFSET
+            end
+        end
         function get.NearestVehiclesFromScreen()
                 local vMyCar = vMy.Vehicle
                 for i = 1, SAMP_MAX_VEHICLES do 
@@ -5073,6 +5169,9 @@ local unload = false
                 bsWrap:WriteFloat(bsData, X)
                 bsWrap:WriteFloat(bsData, Y)
                 bsWrap:WriteFloat(bsData, Z)
+                velocity_x = 0.07
+                velocity_y = 0.07
+                velocity_z = 0
                 bsWrap:WriteFloat(bsData, velocity_x)
                 bsWrap:WriteFloat(bsData, velocity_y)
                 bsWrap:WriteFloat(bsData, velocity_z) 
@@ -5270,7 +5369,7 @@ local unload = false
                 local nearest
                 local vehiclePos = Cars:getCarPosition(wVehicleID)
                 
-                if Godmode.InvisibleCar ~= 1 and vehicle_id ~= 1999 then
+                if Godmode.InvisibleCar ~= 1 and wVehicleID ~= 1999 then
                     if havedriver == true and Teleport.toVehicleDriver.v then
                         for i, _ in pairs(players.id) do
                             if Players:isPlayerStreamed(i) then
@@ -5304,11 +5403,11 @@ local unload = false
                 bsWrap:Write8(bsData, bSeatID)
                 EmulRPC(70, bsData)
                 bsWrap:Reset(bsData)
-                bsWrap:Write32(bsData, 6)
-                bsWrap:Write16(bsData, wVehicleID)
-                bsWrap:Write8(bsData, 1)
-                EmulRPC(70, bsData)
-                bsWrap:Reset(bsData)
+                --bsWrap:Write32(bsData, 6)
+                --bsWrap:Write16(bsData, wVehicleID)
+                --bsWrap:Write8(bsData, 1)
+                --EmulRPC(70, bsData)
+                --bsWrap:Reset(bsData)
             end
             local function isNan(number)
                 return number ~= number
@@ -5347,7 +5446,7 @@ local unload = false
                         normalizedDistance = distance / maxLength
                     end
                     local distance = normalizedDistance * maxLength
-                    posPlayer = CVector(posLocal.fX - direction.fX * distance, posLocal.fY - direction.fY * distance, posLocal.fZ + direction.fZ * distance)
+                    posPlayer = CVector(posLocal.fX - direction.fX * distance, posLocal.fY - direction.fY * distance, posLocal.fZ - direction.fZ * distance)
                          
                     local zground = Utils:FindGroundZForCoord(posPlayer.fX,posPlayer.fY)
                     
@@ -5362,7 +5461,7 @@ local unload = false
                             set.VehiclePos(veh, posPlayer.fX, posPlayer.fY, zground+1)
                             set.VehicleZAngle(SHAcKvar.carAngle)
                         else
-                            set.PlayerPosFindZ(posPlayer.fX, posPlayer.fY, zground+0.5)
+                            set.PlayerPos(posPlayer.fX, posPlayer.fY, zground+1)
                         end
                         local bsData = BitStream()
                         EmulRPC(162, bsData)
@@ -5426,8 +5525,8 @@ local unload = false
                                         send.PutPlayerInVehicle(SHAcKvar.Vehicle, Passenger)
                                     end
                                 else
-                                    set.PlayerPosFindZ(Pos.fX, Pos.fY, Pos.fZ+0.5)
-                                    set.PlayerZAngle(SHAcKvar.pedAngle)
+                                    set.PlayerPos(posPlayer.fX, posPlayer.fY, posPlayer.fZ)
+                                    --set.PlayerZAngle(SHAcKvar.pedAngle)
                                     Teleport.LoadTeleports[0].v = false
                                     Teleport.LoadTeleports[1].v = false
                                     Teleport.LoadTeleports[2].v = false
@@ -5453,6 +5552,8 @@ local unload = false
                             
                             local qw, qx, qy, qz = set.PlayerFacing(posPlayer, Pos)
                             if Players:Driving(Players:getLocalID()) then
+                                local veh = Players:getVehicleID(Players:getLocalID())
+                                set.VehiclePos(veh, posPlayer.fX, posPlayer.fY, posPlayer.fZ)
                                 local icdata = Players:getInCarData(Players:getLocalID())
                                 if Teleport.FromGround.v then
                                     send.inCarSync(posPlayer.fX, posPlayer.fY, zground+1, CVector(Pos.fX, Pos.fY, Pos.fZ), icdata.VehicleID)
@@ -5460,6 +5561,7 @@ local unload = false
                                     send.inCarSync(posPlayer.fX, posPlayer.fY, posPlayer.fZ, CVector(Pos.fX, Pos.fY, Pos.fZ), icdata.VehicleID)
                                 end
                             else
+                                set.PlayerPos(posPlayer.fX, posPlayer.fY, posPlayer.fZ)
                                 local ofData = get.onFootData()
                                 OnFootData.lrkey = 8
                                 OnFootData.udkey = 8
@@ -5566,11 +5668,12 @@ local unload = false
             end
         local function CreateVehicle(ID, model, X, Y, Z, bodycolor1, bodycolor2)
                 local IC = vMy.OFData
-                local health = 1000
+                local health = 999
                 local bsData = BitStream()
                 local Driver = -1
                 if vAmI.Driver or vAmI.Passenger then 
                     IC = vMy.ICData
+                    health = IC.HealthCar
                     if IC.VehicleID ~= 1999 then
                         Driver = IC.VehicleID
                     else
@@ -5628,16 +5731,13 @@ local unload = false
                 bsWrap:Write32(bsData, bodycolor2)
                 EmulRPC(164,bsData)
                 bsWrap:Reset(bsData)
+                send.PutPlayerInVehicle(ID,0)
                 if Driver == -1 then
                     Godmode.InvisibleCar = 1
-                    send.PutPlayerInVehicle(1999,0)
                     SHAcKvar.InvCar = 0
                     SHAcKvar.InvTimer = 0
-                    set.EngineState(ID)
-                elseif Driver > 0 then
-                    send.PutPlayerInVehicle(ID,0)
-                    set.EngineState(ID)
                 end
+                set.EngineState(ID)
                 bsWrap:Write16(bsData, ID) 
                 bsWrap:WriteFloat(bsData, degrees)
                 EmulRPC(160, bsData)
@@ -5975,6 +6075,27 @@ local unload = false
                             end
                         end
                         bsWrap:Reset(bsData)
+                    end
+                    if rpcId == 95 then
+                        local iPickupID = bsWrap:Read32(bsData)
+                        local iModelID = bsWrap:Read32(bsData) 
+                        local iSpawnType = bsWrap:Read32(bsData) 
+                        local X = bsWrap:ReadFloat(bsData)
+                        local Y = bsWrap:ReadFloat(bsData)
+                        local Z = bsWrap:ReadFloat(bsData)
+                        bsWrap:Reset(bsData)
+
+                        Pickups[iPickupID] = {
+                            ModelID = iModelID,
+                            SpawnType = iSpawnType,
+                            X = X,
+                            Y = Y,
+                            Z = Z
+                        }
+                    end
+                    if rpcId == 63 then
+                        local iPickupID = bsWrap:Read32(bsData)
+                        Pickups[iPickupID] = nil
                     end
                     if rpcId == 168 then
                         local ObjectTarget = bsWrap:Read16(bsData)
@@ -6384,7 +6505,7 @@ local unload = false
 
         local function OnSendPacket(packetId, bsData)
                 if Panic.EveryThingExceptVisuals.v == false and unload == false then
-
+                    --bsWrap:ResetReadPointer(bsData)
                 if packetId == 32 then
                     v.WaitForPickLag = 1
                 else
@@ -6813,7 +6934,7 @@ local unload = false
                     --
                     local vehicle
                     
-                    if Godmode.InvisibleCar == 1 and vehicle_id == 1999 then
+                    if Godmode.InvisibleCar == 1 and vMy.Vehicle == 1999 then
                         local speedX = velocity_x/math.random(2,4)
                         local speedY = velocity_y/math.random(2,4)
                         local speedZ = velocity_z/4
@@ -7030,7 +7151,7 @@ local unload = false
                         local aspect_ratio = bsWrap:Read8(bsData) 
 
                         IC = vMy.ICData
-                        if Godmode.InvisibleCar == 1 and vehicle_id == 1999 then
+                        if Godmode.InvisibleCar == 1 and vMy.Vehicle == 1999 then
                             bsWrap:Reset(bsData) 
                             bsWrap:Write8(bsData, 203)  
                             bsWrap:Write8(bsData, 4)  
@@ -7190,6 +7311,10 @@ local unload = false
             end 
         local function OnSendRPC(rpcId, bsData)
                 if Panic.EveryThingExceptVisuals.v == false and unload == false then
+                    if rpcId == 131 then
+                        local iPickupID = bsWrap:Read32(bsData)
+                        Pickups[iPickupID] = nil
+                    end
                     if rpcId == 168 then
                         local ObjectTarget = bsWrap:Read16(bsData)
                         local VehicleTarget = bsWrap:Read16(bsData) 
@@ -7197,7 +7322,7 @@ local unload = false
                         local ActorTarget = bsWrap:Read16(bsData)
                     end
                     if rpcId == 26 then
-                        if Godmode.InvisibleCar == 1 and vehicle_id == 1999 then
+                        if Godmode.InvisibleCar == 1 and vMy.Vehicle == 1999 then
                             return false
                         end
                     end
@@ -7493,7 +7618,7 @@ local unload = false
                                     if not vAmI.Driver and not vAmI.Passenger then
                                         vehicleId = maths.getLowerIn(vehicles.dist)
                                     else
-                                        if Godmode.InvisibleCar == 1 and ICData.VehicleID == 1999 then
+                                        if Godmode.InvisibleCar == 1 and vMy.Vehicle == 1999 then
                                             vehicleId = maths.getLowerIn(vehicles.dist)
                                         else
                                             vehicleId = vMy.Vehicle
@@ -9167,7 +9292,7 @@ local unload = false
                             if SHAcKvar.SaveObjectPos[nearestfromcrosshair] == nil then
                                 Render:DrawLine(Utils:getResolutionX()*0.5,Utils:getResolutionY()*0.4,ObjScreen.fX,ObjScreen.fY,0xFF000000)      
                                 Render:DrawCircle(ObjScreen.fX, ObjScreen.fY, 10, true, 0x9F0040FF) 
-                                local   distance = Utils:Get3Ddist(vMy .Pos, ObjectLoc)
+                                local distance = Utils:Get3Ddist(vMy.Pos, ObjectLoc)
                                 Render:DrawText("Remove Object "..nearestfromcrosshair, ObjScreen.fX,ObjScreen.fY+10,0x9F0040FF)
                                 Render:DrawText("(dist: ".. distance .."m)",ObjScreen.fX,ObjScreen.fY+25,0x6F00FF00)
                                 if Utils:IsKeyChecked(2, 100) then
@@ -9524,23 +9649,56 @@ local unload = false
                 end
             end
         --Send CMD
-            if Extra.SendCMD.v and get.isPlayerAlive(vMy.ID) then
+            if Extra.SendCMD.Enable.v and get.isPlayerAlive(vMy.ID) then
                 local health = Players:getPlayerHP(vMy.ID)
                 local armour = Players:getPlayerArmour(vMy.ID)
-                if Extra.SendCMDHP.v < 100 and armour == 0 and health < Extra.SendCMDHP.v or
-                Extra.SendCMDHP.v >= 100 and armour < Extra.SendCMDArmour.v then
-                    if(SendCMD.update(deltaTime)) and v.SendCMD < Extra.SendCMDTimes.v then
-                        local cmd = Extra.SendCMDCommand.v
+                if Extra.SendCMD.HP.v < 100 and armour == 0 and health < Extra.SendCMD.HP.v or
+                Extra.SendCMD.HP.v >= 100 and armour < Extra.SendCMD.Armour.v then
+                    if(SendCMD.update(deltaTime)) and v.SendCMD < Extra.SendCMD.Times.v then
+                        local cmd = Extra.SendCMD.Command.v
                         if not string.find(cmd, "/") then
                             cmd = "/" .. cmd
                         end
                         Utils:SayChat(cmd)
                         v.SendCMD = v.SendCMD + 1
-                        SendCMD = Timers(Extra.SendCMDDelay.v)
+                        SendCMD = Timers(Extra.SendCMD.Delay.v)
                     end
                 else
                     v.SendCMD = 0
                     SendCMD = Timers(1)
+                end
+            end
+        --PickUP
+            if Extra.PickUP.Enable.v and get.isPlayerAlive(vMy.ID) then
+                local health = Players:getPlayerHP(vMy.ID)
+                local armour = Players:getPlayerArmour(vMy.ID)
+                if Extra.PickUP.HP.v < 100 and armour == 0 and health < Extra.PickUP.HP.v or
+                Extra.PickUP.HP.v >= 100 and armour < Extra.PickUP.Armour.v then
+                    if(PickUP.update(deltaTime)) then
+                        local vMyPos = Players:getPlayerPosition(Players:getLocalID())
+
+                        local closestPickupID = nil
+                    
+                        local poolPtr = get.PickupPool()
+                        local ptwo = Utils:readMemory(poolPtr, 4, false)
+                        if ptwo > 0 then
+                            ptwo = poolPtr + 0x4
+                            local pthree = poolPtr + 0xF004
+                            for id = 1, 4096 do
+                                local pfive = Utils:readMemory(ptwo + id * 4, 4, false)
+                                if pfive < 0 or pfive > 0 then
+                                    pfive = Utils:readMemory(pthree + id * 20, 4, false)
+                                    if pfive == Extra.PickUP.Model1.v or pfive == Extra.PickUP.Model2.v or pfive == Extra.PickUP.Model3.v then
+                                        closestPickupID = modelID
+                                        local bData = BitStream()
+                                        bsWrap:Write32(bData, id)
+                                        SendRPC(131,bData)
+                                        break 
+                                    end
+                                end
+                            end
+                        end
+                    end
                 end
             end
         --Extra WS
@@ -9608,7 +9766,7 @@ local unload = false
                                 local ObjectLoc = Objects:getObjectPosition(j)
                                 Utils:GameToScreen(ObjectLoc, ObjScreen)
                                 vMyScreen = CVector(fX+107, fY-107, 0)
-                                local   distance = Utils:Get2Ddist(vMy .Pos, ObjectLoc)
+                                local distance = Utils:Get2Ddist(vMy .Pos, ObjectLoc)
                                 if  distance < 1000 then
                                     if ObjScreen.fZ > 1 then
                                         if j == nearestfromcrosshair then
@@ -12560,15 +12718,15 @@ local unload = false
                         Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+60,SHAkMenu.menutransitorstaticreversed+60) Menu:SliderInt("Armour", Extra.RequestSpawnArmour, 0, 99)
                     end
                     Menu:Separator()
-                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox2("Send CMD", Extra.SendCMD)
-                    Menu:SameLine(SHAkMenu.menutransitorstaticreversed+60,SHAkMenu.menutransitorstaticreversed+60) Menu:SliderInt("Health##2", Extra.SendCMDHP, 0, 100)
-                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:InputText("Message:##2",Extra.SendCMDCommand)
-                    if Extra.SendCMDHP.v >= 100 then
-                        Menu:SameLine(SHAkMenu.menutransitorstaticreversed+60,SHAkMenu.menutransitorstaticreversed+60) Menu:SliderInt("Armour##2", Extra.SendCMDArmour, 0, 99)
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox2("Send CMD", Extra.SendCMD.Enable)
+                    Menu:SameLine(SHAkMenu.menutransitorstaticreversed+60,SHAkMenu.menutransitorstaticreversed+60) Menu:SliderInt("Health##2", Extra.SendCMD.HP, 0, 100)
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:InputText("Message:##2",Extra.SendCMD.Command)
+                    if Extra.SendCMD.HP.v >= 100 then
+                        Menu:SameLine(SHAkMenu.menutransitorstaticreversed+60,SHAkMenu.menutransitorstaticreversed+60) Menu:SliderInt("Armour##2", Extra.SendCMD.Armour, 0, 99)
                     end
-                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:SliderInt("Times##2", Extra.SendCMDTimes, 1, 20)
-                    if Extra.SendCMDTimes.v > 1 then
-                        Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:SliderInt("Delay##2", Extra.SendCMDDelay, 0, 20000)
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:SliderInt("Times##2", Extra.SendCMD.Times, 1, 20)
+                    if Extra.SendCMD.Times.v > 1 then
+                        Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:SliderInt("Delay##2", Extra.SendCMD.Delay, 0, 20000)
                         Menu:SameLine(SHAkMenu.menutransitorstaticreversed+75,SHAkMenu.menutransitorstaticreversed+75) 
                         if Menu:Button("(?)##192") then
                             if InfoButton2 == true then
@@ -12582,6 +12740,26 @@ local unload = false
                             Menu:Text("Delay for the next Time (First one will be instant)")
                         end
                     end
+                    Menu:Separator()
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox2("Pick PickUP", Extra.PickUP.Enable)
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:SliderInt("Health##5", Extra.PickUP.HP, 0, 100)
+                    Menu:SameLine(SHAkMenu.menutransitorstaticreversed+90,SHAkMenu.menutransitorstaticreversed+90) Menu:SliderInt("PickUP##111",Extra.PickUP.Model1, 0, 100000)
+                        
+                    if Extra.PickUP.HP.v >= 100 then
+                        Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:SliderInt("Armour##678", Extra.PickUP.Armour, 0, 99)
+                        Menu:SameLine(SHAkMenu.menutransitorstaticreversed+90,SHAkMenu.menutransitorstaticreversed+90) Menu:SliderInt("PickUP##222",Extra.PickUP.Model2, 0, 100000)
+                    end
+                        Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) if Menu:SliderInt("Delay##678", Extra.PickUP.Delay, 0, 20000) then
+                            get.ScriptTimers()
+                        end
+                        if Extra.PickUP.HP.v < 100 then
+                            Menu:SameLine(SHAkMenu.menutransitorstaticreversed+90,SHAkMenu.menutransitorstaticreversed+90) Menu:SliderInt("PickUP##222",Extra.PickUP.Model2, 0, 100000)
+                        end
+                        if Extra.PickUP.HP.v < 100 then
+                            Menu:Text("") 
+                        end
+                        Menu:SameLine(SHAkMenu.menutransitorstaticreversed+90,SHAkMenu.menutransitorstaticreversed+90) Menu:SliderInt("PickUP##780",Extra.PickUP.Model3, 0, 100000)
+
                     Menu:Separator()
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox2("Auto Reply", Extra.AutoReply[0])
                     Menu:Separator()
