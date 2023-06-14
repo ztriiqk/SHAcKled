@@ -1,5 +1,5 @@
 local bit = require("bit32")
-local luaVersion = "1.19"
+local luaVersion = "1.14"
 local unload = false
 
 --Timers 
@@ -4035,51 +4035,47 @@ local unload = false
             end
     --Object & Vehicles
         function set.HydraLockOnDelay(LockOn, Visual)
-            if LockOn == true then
-                Utils:writeMemory(0x6E363A, 0, 4, false) -- Actual Lock On
-            else
-                Utils:writeMemory(0x6E363A, 1500, 4, false)
+                if LockOn == true then
+                    Utils:writeMemory(0x6E363A, 0, 4, false) -- Actual Lock On
+                else
+                    Utils:writeMemory(0x6E363A, 1500, 4, false)
+                end
+                if Visual == true then
+                    Utils:writeMemory(0x6E36FB, 0, 4, false) -- Only Visual
+                else
+                    Utils:writeMemory(0x6E36FB, 1500, 4, false)
+                end
             end
-            if Visual == true then
-                Utils:writeMemory(0x6E36FB, 0, 4, false) -- Only Visual
-            else
-                Utils:writeMemory(0x6E36FB, 1500, 4, false)
-            end
-        end
-        set.HydraLockOnDelay(Vehicle.Hydra.FastLock.Lock.v, Vehicle.Hydra.FastLock.Visual.v)
+            set.HydraLockOnDelay(Vehicle.Hydra.FastLock.Lock.v, Vehicle.Hydra.FastLock.Visual.v)
         function set.HydraThrust()
-            
                 --Utils:writeMemory(0x8D33DC, 25.0, 4, false)
                 local HARRIER_NOZZLE_ROTATERATE = Utils:readMemory(0x8D33DC, 4, false)
                 local defaultRotateRate = 25.0
                 local vehicle = CVehicleST
                 if (vehicle > 0) then
-                    local vModel = Cars:getCarModel(vMy.Vehicle)
-                    if (vModel == 520) then
-                        --local val = Utils:readMemory(vehicle + 0x86C, 4, false)
-                        local ThrustState = Utils:readMemory(vehicle + 0x86C, 4, false)
-                        local expectState = ThrustState
-                        if (v.HydraThrustState == true) then
-                            if ThrustState ~= 0 then
-                                expectState = ThrustState - Vehicle.Hydra.Thrust.Speed.v
-                                if expectState < 0 then
-                                    expectState = 0
-                                end
-                            else
-                                v.ThrustWait = false
+                    --local val = Utils:readMemory(vehicle + 0x86C, 4, false)
+                    local ThrustState = Utils:readMemory(vehicle + 0x86C, 4, false)
+                    local expectState = ThrustState
+                    if (v.HydraThrustState == true) then
+                        if ThrustState ~= 0 then
+                            expectState = ThrustState - Vehicle.Hydra.Thrust.Speed.v
+                            if expectState < 0 then
+                                expectState = 0
                             end
                         else
-                            if ThrustState ~= 5000 then
-                                expectState = ThrustState + Vehicle.Hydra.Thrust.Speed.v
-                                if expectState > 5000 then
-                                    expectState = 5000
-                                end
-                            else
-                                v.ThrustWait = false
-                            end
+                            v.ThrustWait = false
                         end
-                        Utils:writeMemory(vehicle + 0x86C, expectState, 4, false)
+                    else
+                        if ThrustState ~= 5000 then
+                            expectState = ThrustState + Vehicle.Hydra.Thrust.Speed.v
+                            if expectState > 5000 then
+                                expectState = 5000
+                            end
+                        else
+                            v.ThrustWait = false
+                        end
                     end
+                    Utils:writeMemory(vehicle + 0x86C, expectState, 4, false)
                 end
             end
         function get.SAMPCPools()
@@ -9637,13 +9633,16 @@ Utils:writeMemory(0x53E94C, 0, 1, true)
             --Hydra Thrust
                 if Vehicle.Hydra.Thrust.Enable.v then
                     if vAmI.Driver then
-                        if Utils:IsKeyChecked(Vehicle.Hydra.Thrust.Key.v, 0) then
-                            v.HydraThrustState = not v.HydraThrustState
-                            v.ThrustWait = true
-                        end
-                        if v.ThrustWait == true then
-                            if(HydraThrustDelay.update(deltaTime)) then
-                                set.HydraThrust()
+                        local vModel = Cars:getCarModel(vMy.Vehicle)
+                        if (vModel == 520) then
+                            if Utils:IsKeyChecked(Vehicle.Hydra.Thrust.Key.v, 0) then
+                                v.HydraThrustState = not v.HydraThrustState
+                                v.ThrustWait = true
+                            end
+                            if v.ThrustWait == true then
+                                if(HydraThrustDelay.update(deltaTime)) then
+                                    set.HydraThrust()
+                                end
                             end
                         end
                     end
