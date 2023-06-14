@@ -1,5 +1,5 @@
 local bit = require("bit32")
-local luaVersion = "1.17"
+local luaVersion = "1.18"
 local unload = false
 
 --Timers 
@@ -714,7 +714,7 @@ local unload = false
         local Extra = {
                 AutoDeleteWeapon = {
                         Slot0 = {
-                                brass = ImBool(false)
+                                brassknuckles = ImBool(false)
                             },
                         Slot1 = {
                                 golf = ImBool(false),
@@ -746,11 +746,11 @@ local unload = false
                                 m4 = ImBool(false)
                             },
                         Slot6 = {
-                                cuntgun = ImBool(false),
+                                countryrifle = ImBool(false),
                                 sniper = ImBool(false)
                             },
                         Slot7 = {
-                                rocket = ImBool(false),
+                                rocketlauncher = ImBool(false),
                                 heatseeker = ImBool(false),
                                 flamethrower = ImBool(false),
                                 minigun = ImBool(false)
@@ -766,16 +766,16 @@ local unload = false
                                 camera = ImBool(false)
                             },
                         Slot10 = {
-                                purple = ImBool(false),
+                                purpledildo = ImBool(false),
                                 dildo = ImBool(false),
                                 vibrator = ImBool(false),
-                                silver = ImBool(false),
+                                silvervibrator = ImBool(false),
                                 flowers = ImBool(false),
                                 cane = ImBool(false)
                             },
                         Slot11 = {
-                                night = ImBool(false),
-                                thermal = ImBool(false),
+                                nightvision = ImBool(false),
+                                thermalvision = ImBool(false),
                                 Parachute = ImBool(false)
                             },
                         Slot12 = {
@@ -858,7 +858,8 @@ local unload = false
                     Model3 = ImInt(1242),
                     Delay = ImInt(1000),
                     HP = ImInt(100),
-                    Armour = ImInt(10)
+                    Armour = ImInt(10),
+                    Dist = ImFloat(0)
                 },
                 RequestSpawn = ImBool(false),
                 RequestSpawnHP = ImInt(0),
@@ -1173,7 +1174,7 @@ local unload = false
         weaponInfo[30] = { id = 30, slot = 5,  name = "Ak47",                     distance = 70.0,  damage = 9.900001,  own = false, ammo = 0, clipammo = 0, animations = 1167, animationsflag = 32766, weaponstate = 155, cammode = 53, twohanded = true }
         weaponInfo[31] = { id = 31, slot = 5,  name = "M4",                       distance = 90.0,  damage = 9.900001,  own = false, ammo = 0, clipammo = 0, animations = 1167, animationsflag = 32766, weaponstate = 155, cammode = 53, twohanded = true }
         weaponInfo[32] = { id = 32, slot = 4,  name = "Tec9",                     distance = 35.0,  damage = 6.6,       own = false, ammo = 0, clipammo = 0, animations = 363,  animationsflag = 32766, weaponstate = 191, cammode = 53, twohanded = false }
-        weaponInfo[33] = { id = 33, slot = 6,  name = "Cuntgun",                  distance = 100.0, damage = 24.750002, own = false, ammo = 0, clipammo = 0, animations = 1167, animationsflag = 32766, weaponstate = 191, cammode = 53, twohanded = true }
+        weaponInfo[33] = { id = 33, slot = 6,  name = "Country Rifle",                  distance = 100.0, damage = 24.750002, own = false, ammo = 0, clipammo = 0, animations = 1167, animationsflag = 32766, weaponstate = 191, cammode = 53, twohanded = true }
         weaponInfo[34] = { id = 34, slot = 6,  name = "Sniper",                   distance = 320.0, damage = 41.25,     own = false, ammo = 0, clipammo = 0, animations = 1167, animationsflag = 32766, weaponstate = 171, cammode = 7,  twohanded = true }
         weaponInfo[35] = { id = 35, slot = 7,  name = "Rocket Launcher",          distance = 55.0,  damage = 82.5,      own = false, ammo = 0, clipammo = 0, animations = 1167, animationsflag = 32776, weaponstate = 171, cammode = 8,  twohanded = true }
         weaponInfo[36] = { id = 36, slot = 7,  name = "HeatSeeker",               distance = 55.0,  damage = 82.5,      own = false, ammo = 0, clipammo = 0, animations = 1167, animationsflag = 32776, weaponstate = 171, cammode = 51, twohanded = true }
@@ -1184,8 +1185,8 @@ local unload = false
         weaponInfo[41] = { id = 41, slot = 9,  name = "Spraycan",                 distance = 6.1,   damage = 0.33,      own = false, ammo = 0, clipammo = 0, animations = 1164, animationsflag = 32776, weaponstate = 191, cammode = 53, twohanded = false }
         weaponInfo[42] = { id = 42, slot = 9,  name = "Extinguisher",             distance = 10.1,  damage = 0.33,      own = false, ammo = 0, clipammo = 0, animations = 1167, animationsflag = 32776, weaponstate = 191, cammode = 53, twohanded = true }
         weaponInfo[43] = { id = 43, slot = 9,  name = "Camera",                   distance = 100.0, damage = 0.0,       own = false, ammo = 0, clipammo = 0, animations = 0,    animationsflag = 0,     weaponstate = 191, cammode = 46, twohanded = false }
-        weaponInfo[44] = { id = 44, slot = 11, name = "Nightvision",              distance = 100.0, damage = 0.0,       own = false, ammo = 0, clipammo = 0, animations = 0,    animationsflag = 0,     weaponstate = 63,  cammode = 4,  twohanded = false }
-        weaponInfo[45] = { id = 45, slot = 11, name = "Infraredvision",           distance = 100.0, damage = 0.0,       own = false, ammo = 0, clipammo = 0, animations = 0,    animationsflag = 0,     weaponstate = 63,  cammode = 4,  twohanded = false }
+        weaponInfo[44] = { id = 44, slot = 11, name = "Night Vision",              distance = 100.0, damage = 0.0,       own = false, ammo = 0, clipammo = 0, animations = 0,    animationsflag = 0,     weaponstate = 63,  cammode = 4,  twohanded = false }
+        weaponInfo[45] = { id = 45, slot = 11, name = "Thermal Vision",            distance = 100.0, damage = 0.0,       own = false, ammo = 0, clipammo = 0, animations = 0,    animationsflag = 0,     weaponstate = 63,  cammode = 4,  twohanded = false }
         weaponInfo[46] = { id = 46, slot = 11, name = "Parachute",                distance = 1.6,   damage = 0.0,       own = false, ammo = 0, clipammo = 0, animations = 0,    animationsflag = 0,     weaponstate = 63,  cammode = 4,  twohanded = false }
         weaponInfo[47] = { id = 47, slot = -1, name = "Cellphone",                distance = 300.0, damage = 0.0,       own = false, ammo = 0, clipammo = 0, animations = 0,    animationsflag = 0,     weaponstate = 191, cammode = 53, twohanded = false }
         weaponInfo[48] = { id = 48, slot = -1, name = "Jetpack",                  distance = 300.0, damage = 0.0,       own = false, ammo = 0, clipammo = 0, animations = 0,    animationsflag = 0,     weaponstate = 191, cammode = 53, twohanded = false }
@@ -1402,7 +1403,6 @@ local unload = false
     local maths = {}
     local read = {}
     local send = {}
-    local Pickups = {}
 -- 
 --! Variables
     local v =
@@ -2601,7 +2601,7 @@ local unload = false
             end
         function Extra.SaveAsString()
                 local output = ""
-                output = output .. string.format("Extra.AutoDeleteWeapon.Slot0.brass = %s",Extra.AutoDeleteWeapon.Slot0.brass.v) .. "\n"
+                output = output .. string.format("Extra.AutoDeleteWeapon.Slot0.brassknuckles = %s",Extra.AutoDeleteWeapon.Slot0.brassknuckles.v) .. "\n"
                 output = output .. string.format("Extra.AutoDeleteWeapon.Slot1.golf = %s",Extra.AutoDeleteWeapon.Slot1.golf.v) .. "\n"
                 output = output .. string.format("Extra.AutoDeleteWeapon.Slot1.nitestick = %s",Extra.AutoDeleteWeapon.Slot1.nitestick.v) .. "\n"
                 output = output .. string.format("Extra.AutoDeleteWeapon.Slot1.knife = %s",Extra.AutoDeleteWeapon.Slot1.knife.v) .. "\n"
@@ -2621,9 +2621,9 @@ local unload = false
                 output = output .. string.format("Extra.AutoDeleteWeapon.Slot4.tec9 = %s",Extra.AutoDeleteWeapon.Slot4.tec9.v) .. "\n"
                 output = output .. string.format("Extra.AutoDeleteWeapon.Slot5.ak47 = %s",Extra.AutoDeleteWeapon.Slot5.ak47.v) .. "\n"
                 output = output .. string.format("Extra.AutoDeleteWeapon.Slot5.m4 = %s",Extra.AutoDeleteWeapon.Slot5.m4.v) .. "\n"
-                output = output .. string.format("Extra.AutoDeleteWeapon.Slot6.cuntgun = %s",Extra.AutoDeleteWeapon.Slot6.cuntgun.v) .. "\n"
+                output = output .. string.format("Extra.AutoDeleteWeapon.Slot6.countryrifle = %s",Extra.AutoDeleteWeapon.Slot6.countryrifle.v) .. "\n"
                 output = output .. string.format("Extra.AutoDeleteWeapon.Slot6.sniper = %s",Extra.AutoDeleteWeapon.Slot6.sniper.v) .. "\n"
-                output = output .. string.format("Extra.AutoDeleteWeapon.Slot7.rocket = %s",Extra.AutoDeleteWeapon.Slot7.rocket.v) .. "\n"
+                output = output .. string.format("Extra.AutoDeleteWeapon.Slot7.rocketlauncher = %s",Extra.AutoDeleteWeapon.Slot7.rocketlauncher.v) .. "\n"
                 output = output .. string.format("Extra.AutoDeleteWeapon.Slot7.heatseeker = %s",Extra.AutoDeleteWeapon.Slot7.heatseeker.v) .. "\n"
                 output = output .. string.format("Extra.AutoDeleteWeapon.Slot7.flamethrower = %s",Extra.AutoDeleteWeapon.Slot7.flamethrower.v) .. "\n"
                 output = output .. string.format("Extra.AutoDeleteWeapon.Slot7.minigun = %s",Extra.AutoDeleteWeapon.Slot7.minigun.v) .. "\n"
@@ -2633,14 +2633,14 @@ local unload = false
                 output = output .. string.format("Extra.AutoDeleteWeapon.Slot9.spraycan = %s",Extra.AutoDeleteWeapon.Slot9.spraycan.v) .. "\n"
                 output = output .. string.format("Extra.AutoDeleteWeapon.Slot9.extinguisher = %s",Extra.AutoDeleteWeapon.Slot9.extinguisher.v) .. "\n"
                 output = output .. string.format("Extra.AutoDeleteWeapon.Slot9.camera = %s",Extra.AutoDeleteWeapon.Slot9.camera.v) .. "\n"
-                output = output .. string.format("Extra.AutoDeleteWeapon.Slot10.purple = %s",Extra.AutoDeleteWeapon.Slot10.purple.v) .. "\n"
+                output = output .. string.format("Extra.AutoDeleteWeapon.Slot10.purpledildo = %s",Extra.AutoDeleteWeapon.Slot10.purpledildo.v) .. "\n"
                 output = output .. string.format("Extra.AutoDeleteWeapon.Slot10.dildo = %s",Extra.AutoDeleteWeapon.Slot10.dildo.v) .. "\n"
                 output = output .. string.format("Extra.AutoDeleteWeapon.Slot10.vibrator = %s",Extra.AutoDeleteWeapon.Slot10.vibrator.v) .. "\n"
-                output = output .. string.format("Extra.AutoDeleteWeapon.Slot10.silver = %s",Extra.AutoDeleteWeapon.Slot10.silver.v) .. "\n"
+                output = output .. string.format("Extra.AutoDeleteWeapon.Slot10.silvervibrator = %s",Extra.AutoDeleteWeapon.Slot10.silvervibrator.v) .. "\n"
                 output = output .. string.format("Extra.AutoDeleteWeapon.Slot10.flowers = %s",Extra.AutoDeleteWeapon.Slot10.flowers.v) .. "\n"
                 output = output .. string.format("Extra.AutoDeleteWeapon.Slot10.cane = %s",Extra.AutoDeleteWeapon.Slot10.cane.v) .. "\n"
-                output = output .. string.format("Extra.AutoDeleteWeapon.Slot11.night = %s",Extra.AutoDeleteWeapon.Slot11.night.v) .. "\n"
-                output = output .. string.format("Extra.AutoDeleteWeapon.Slot11.thermal = %s",Extra.AutoDeleteWeapon.Slot11.thermal.v) .. "\n"
+                output = output .. string.format("Extra.AutoDeleteWeapon.Slot11.nightvision = %s",Extra.AutoDeleteWeapon.Slot11.nightvision.v) .. "\n"
+                output = output .. string.format("Extra.AutoDeleteWeapon.Slot11.thermalvision = %s",Extra.AutoDeleteWeapon.Slot11.nightvision.v) .. "\n"
                 output = output .. string.format("Extra.AutoDeleteWeapon.Slot11.Parachute = %s",Extra.AutoDeleteWeapon.Slot11.Parachute.v) .. "\n"
                 output = output .. string.format("Extra.AutoDeleteWeapon.Slot12.detonator = %s",Extra.AutoDeleteWeapon.Slot12.detonator.v) .. "\n"
                 output = output .. string.format("Extra.fuckKeyStrokes.Enable = %s",Extra.fuckKeyStrokes.Enable.v) .. "\n"
@@ -2692,6 +2692,7 @@ local unload = false
                 output = output .. string.format("Extra.PickUP.Delay = %d",Extra.PickUP.Delay.v) .. "\n"
                 output = output .. string.format("Extra.PickUP.HP = %d",Extra.PickUP.HP.v) .. "\n"
                 output = output .. string.format("Extra.PickUP.Armour = %d",Extra.PickUP.Armour.v) .. "\n"
+                output = output .. string.format("Extra.PickUP.Dist = %f",Extra.PickUP.Dist.v) .. "\n"
                 output = output .. string.format("Extra.RequestSpawn = %s",Extra.RequestSpawn.v) .. "\n"
                 output = output .. string.format("Extra.RequestSpawnHP = %d",Extra.RequestSpawnHP.v) .. "\n"
                 output = output .. string.format("Extra.RequestSpawnArmour = %d",Extra.RequestSpawnArmour.v) .. "\n"
@@ -3212,7 +3213,7 @@ local unload = false
                 StreamWall.MaxPlayers = read.IntFromString(var1[cfglines],"StreamWall.MaxPlayers",lines[cfglines]) cfglines = cfglines + 1
                 StreamWall.X = read.FloatFromString(var1[cfglines],"StreamWall.X",lines[cfglines]) cfglines = cfglines + 1
                 StreamWall.Y = read.FloatFromString(var1[cfglines],"StreamWall.Y",lines[cfglines]) cfglines = cfglines + 1
-                Extra.AutoDeleteWeapon.Slot0.brass = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot0.brass",lines[cfglines]) cfglines = cfglines + 1
+                Extra.AutoDeleteWeapon.Slot0.brassknuckles = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot0.brassknuckles",lines[cfglines]) cfglines = cfglines + 1
                 Extra.AutoDeleteWeapon.Slot1.golf = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot1.golf",lines[cfglines]) cfglines = cfglines + 1
                 Extra.AutoDeleteWeapon.Slot1.nitestick = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot1.nitestick",lines[cfglines]) cfglines = cfglines + 1
                 Extra.AutoDeleteWeapon.Slot1.knife = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot1.knife",lines[cfglines]) cfglines = cfglines + 1
@@ -3232,9 +3233,9 @@ local unload = false
                 Extra.AutoDeleteWeapon.Slot4.tec9 = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot4.tec9",lines[cfglines]) cfglines = cfglines + 1
                 Extra.AutoDeleteWeapon.Slot5.ak47 = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot5.ak47",lines[cfglines]) cfglines = cfglines + 1
                 Extra.AutoDeleteWeapon.Slot5.m4 = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot5.m4",lines[cfglines]) cfglines = cfglines + 1
-                Extra.AutoDeleteWeapon.Slot6.cuntgun = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot6.cuntgun",lines[cfglines]) cfglines = cfglines + 1
+                Extra.AutoDeleteWeapon.Slot6.countryrifle = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot6.countryrifle",lines[cfglines]) cfglines = cfglines + 1
                 Extra.AutoDeleteWeapon.Slot6.sniper = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot6.sniper",lines[cfglines]) cfglines = cfglines + 1
-                Extra.AutoDeleteWeapon.Slot7.rocket = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot7.rocket",lines[cfglines]) cfglines = cfglines + 1
+                Extra.AutoDeleteWeapon.Slot7.rocketlauncher = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot7.rocketlauncher",lines[cfglines]) cfglines = cfglines + 1
                 Extra.AutoDeleteWeapon.Slot7.heatseeker = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot7.heatseeker",lines[cfglines]) cfglines = cfglines + 1
                 Extra.AutoDeleteWeapon.Slot7.flamethrower = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot7.flamethrower",lines[cfglines]) cfglines = cfglines + 1
                 Extra.AutoDeleteWeapon.Slot7.minigun = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot7.minigun",lines[cfglines]) cfglines = cfglines + 1
@@ -3244,14 +3245,14 @@ local unload = false
                 Extra.AutoDeleteWeapon.Slot9.spraycan = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot9.spraycan",lines[cfglines]) cfglines = cfglines + 1
                 Extra.AutoDeleteWeapon.Slot9.extinguisher = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot9.extinguisher",lines[cfglines]) cfglines = cfglines + 1
                 Extra.AutoDeleteWeapon.Slot9.camera = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot9.camera",lines[cfglines]) cfglines = cfglines + 1
-                Extra.AutoDeleteWeapon.Slot10.purple = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot10.purple",lines[cfglines]) cfglines = cfglines + 1
+                Extra.AutoDeleteWeapon.Slot10.purpledildo = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot10.purpledildo",lines[cfglines]) cfglines = cfglines + 1
                 Extra.AutoDeleteWeapon.Slot10.dildo = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot10.dildo",lines[cfglines]) cfglines = cfglines + 1
                 Extra.AutoDeleteWeapon.Slot10.vibrator = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot10.vibrator",lines[cfglines]) cfglines = cfglines + 1
-                Extra.AutoDeleteWeapon.Slot10.silver = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot10.silver",lines[cfglines]) cfglines = cfglines + 1
+                Extra.AutoDeleteWeapon.Slot10.silvervibrator = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot10.silvervibrator",lines[cfglines]) cfglines = cfglines + 1
                 Extra.AutoDeleteWeapon.Slot10.flowers = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot10.flowers",lines[cfglines]) cfglines = cfglines + 1
                 Extra.AutoDeleteWeapon.Slot10.cane = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot10.cane",lines[cfglines]) cfglines = cfglines + 1
-                Extra.AutoDeleteWeapon.Slot11.night = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot11.night",lines[cfglines]) cfglines = cfglines + 1
-                Extra.AutoDeleteWeapon.Slot11.thermal = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot11.thermal",lines[cfglines]) cfglines = cfglines + 1
+                Extra.AutoDeleteWeapon.Slot11.nightvision = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot11.nightvision",lines[cfglines]) cfglines = cfglines + 1
+                Extra.AutoDeleteWeapon.Slot11.thermalvision = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot11.thermalvision",lines[cfglines]) cfglines = cfglines + 1
                 Extra.AutoDeleteWeapon.Slot11.Parachute = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot11.Parachute",lines[cfglines]) cfglines = cfglines + 1
                 Extra.AutoDeleteWeapon.Slot12.detonator = read.BoolFromString(var1[cfglines],"Extra.AutoDeleteWeapon.Slot12.detonator",lines[cfglines]) cfglines = cfglines + 1
                 Extra.fuckKeyStrokes.Enable = read.BoolFromString(var1[cfglines],"Extra.fuckKeyStrokes.Enable",lines[cfglines]) cfglines = cfglines + 1
@@ -3303,6 +3304,7 @@ local unload = false
                 Extra.PickUP.Delay = read.IntFromString(var1[cfglines],"Extra.PickUP.Delay",lines[cfglines]) cfglines = cfglines + 1 
                 Extra.PickUP.HP = read.IntFromString(var1[cfglines],"Extra.PickUP.HP",lines[cfglines]) cfglines = cfglines + 1 
                 Extra.PickUP.Armour = read.IntFromString(var1[cfglines],"Extra.PickUP.Armour",lines[cfglines]) cfglines = cfglines + 1 
+                Extra.PickUP.Dist = read.FloatFromString(var1[cfglines],"Extra.PickUP.Dist",lines[cfglines]) cfglines = cfglines + 1 
                 Extra.RequestSpawn = read.BoolFromString(var1[cfglines],"Extra.RequestSpawn",lines[cfglines]) cfglines = cfglines + 1
                 Extra.RequestSpawnHP = read.IntFromString(var1[cfglines],"Extra.RequestSpawnHP",lines[cfglines]) cfglines = cfglines + 1
                 Extra.RequestSpawnArmour = read.IntFromString(var1[cfglines],"Extra.RequestSpawnArmour",lines[cfglines]) cfglines = cfglines + 1
@@ -4012,68 +4014,45 @@ local unload = false
             end
     --Object & Vehicles
         function get.PickupPool()
+            local offset1
+            local offset2
+            local offset3
+
             if v.SampVer == 1 then -- r1
-                local SAMP_INFO_OFFSET = v.SampAdr + 0x21A0F8 
-                SAMP_INFO_OFFSET = Utils:readMemory(SAMP_INFO_OFFSET, 4, false)
-
-                local SAMP_PPOOLS_OFFSET = SAMP_INFO_OFFSET + 0x3CD 
-                SAMP_PPOOLS_OFFSET = Utils:readMemory(SAMP_PPOOLS_OFFSET, 4, false)
-
-                local SAMP_PPOOL_PICKUP_OFFSET = SAMP_PPOOLS_OFFSET + 0x20 
-                SAMP_PPOOL_PICKUP_OFFSET = Utils:readMemory(SAMP_PPOOL_PICKUP_OFFSET, 4, false)
-                return SAMP_PPOOL_PICKUP_OFFSET
+                offset1 = 0x21A0F8
+                offset2 = 0x3CD
+                offset3 = 0x20
             elseif v.SampVer == 2 then -- r2
-                local SAMP_INFO_OFFSET = v.SampAdr + 0x21A100 
-                SAMP_INFO_OFFSET = Utils:readMemory(SAMP_INFO_OFFSET, 4, false)
-
-                local SAMP_PPOOLS_OFFSET = SAMP_INFO_OFFSET + 0x3C5 
-                SAMP_PPOOLS_OFFSET = Utils:readMemory(SAMP_PPOOLS_OFFSET, 4, false)
-
-                local SAMP_PPOOL_PICKUP_OFFSET = SAMP_PPOOLS_OFFSET + 0x10  
-                SAMP_PPOOL_PICKUP_OFFSET = Utils:readMemory(SAMP_PPOOL_PICKUP_OFFSET, 4, false)
-                return SAMP_PPOOL_PICKUP_OFFSET
+                offset1 = 0x21A100
+                offset2 = 0x3C5
+                offset3 = 0x10
             elseif v.SampVer == 3 then -- r3
-                local SAMP_INFO_OFFSET = v.SampAdr + 0x26E8DC  
-                SAMP_INFO_OFFSET = Utils:readMemory(SAMP_INFO_OFFSET, 4, false)
-
-                local SAMP_PPOOLS_OFFSET = SAMP_INFO_OFFSET + 0x3DE  
-                SAMP_PPOOLS_OFFSET = Utils:readMemory(SAMP_PPOOLS_OFFSET, 4, false)
-
-                local SAMP_PPOOL_PICKUP_OFFSET = SAMP_PPOOLS_OFFSET + 0x10  
-                SAMP_PPOOL_PICKUP_OFFSET = Utils:readMemory(SAMP_PPOOL_PICKUP_OFFSET, 4, false)
-                return SAMP_PPOOL_PICKUP_OFFSET
+                offset1 = 0x26E8DC
+                offset2 = 0x3DE
+                offset3 = 0x10
             elseif v.SampVer == 4 then -- r4
-                local SAMP_INFO_OFFSET = v.SampAdr + 0x26EA0C  
-                SAMP_INFO_OFFSET = Utils:readMemory(SAMP_INFO_OFFSET, 4, false)
-
-                local SAMP_PPOOLS_OFFSET = SAMP_INFO_OFFSET + 0x3DE 
-                SAMP_PPOOLS_OFFSET = Utils:readMemory(SAMP_PPOOLS_OFFSET, 4, false)
-
-                local SAMP_PPOOL_PICKUP_OFFSET = SAMP_PPOOLS_OFFSET + 0x10 
-                SAMP_PPOOL_PICKUP_OFFSET = Utils:readMemory(SAMP_PPOOL_PICKUP_OFFSET, 4, false)
-                return SAMP_PPOOL_PICKUP_OFFSET
+                offset1 = 0x26EA0C
+                offset2 = 0x3DE
+                offset3 = 0x10
             elseif v.SampVer == 5 then -- r4-2
-                local SAMP_INFO_OFFSET = v.SampAdr + 0x26EA0C 
-                SAMP_INFO_OFFSET = Utils:readMemory(SAMP_INFO_OFFSET, 4, false)
-
-                local SAMP_PPOOLS_OFFSET = SAMP_INFO_OFFSET + 0x3DE 
-                SAMP_PPOOLS_OFFSET = Utils:readMemory(SAMP_PPOOLS_OFFSET, 4, false)
-
-                local SAMP_PPOOL_PICKUP_OFFSET = SAMP_PPOOLS_OFFSET + 0x8 
-                SAMP_PPOOL_PICKUP_OFFSET = Utils:readMemory(SAMP_PPOOL_PICKUP_OFFSET, 4, false)
-                return SAMP_PPOOL_PICKUP_OFFSET
+                offset1 = 0x26EA0C
+                offset2 = 0x3DE
+                offset3 = 0x8
             elseif v.SampVer == 5 then -- 03dl
-                local SAMP_INFO_OFFSET = v.SampAdr + 0x2ACA24  
+                offset1 = 0x2ACA24
+                offset2 = 0x3DE
+                offset3 = 0x10
+            end
+                local SAMP_INFO_OFFSET = v.SampAdr + offset1  
                 SAMP_INFO_OFFSET = Utils:readMemory(SAMP_INFO_OFFSET, 4, false)
 
-                local SAMP_PPOOLS_OFFSET = SAMP_INFO_OFFSET + 0x3DE  
+                local SAMP_PPOOLS_OFFSET = SAMP_INFO_OFFSET + offset2  
                 SAMP_PPOOLS_OFFSET = Utils:readMemory(SAMP_PPOOLS_OFFSET, 4, false)
 
-                local SAMP_PPOOL_PICKUP_OFFSET = SAMP_PPOOLS_OFFSET + 0x10  
+                local SAMP_PPOOL_PICKUP_OFFSET = SAMP_PPOOLS_OFFSET + offset3  
                 SAMP_PPOOL_PICKUP_OFFSET = Utils:readMemory(SAMP_PPOOL_PICKUP_OFFSET, 4, false)
                 return SAMP_PPOOL_PICKUP_OFFSET
             end
-        end
         function get.NearestVehiclesFromScreen()
                 local vMyCar = vMy.Vehicle
                 for i = 1, SAMP_MAX_VEHICLES do 
@@ -5731,13 +5710,15 @@ local unload = false
                 bsWrap:Write32(bsData, bodycolor2)
                 EmulRPC(164,bsData)
                 bsWrap:Reset(bsData)
-                send.PutPlayerInVehicle(ID,0)
+                if Driver > 0 or Driver == -1 then
+                    send.PutPlayerInVehicle(ID,0)
+                    set.EngineState(ID)
+                end
                 if Driver == -1 then
                     Godmode.InvisibleCar = 1
                     SHAcKvar.InvCar = 0
                     SHAcKvar.InvTimer = 0
                 end
-                set.EngineState(ID)
                 bsWrap:Write16(bsData, ID) 
                 bsWrap:WriteFloat(bsData, degrees)
                 EmulRPC(160, bsData)
@@ -6075,27 +6056,6 @@ local unload = false
                             end
                         end
                         bsWrap:Reset(bsData)
-                    end
-                    if rpcId == 95 then
-                        local iPickupID = bsWrap:Read32(bsData)
-                        local iModelID = bsWrap:Read32(bsData) 
-                        local iSpawnType = bsWrap:Read32(bsData) 
-                        local X = bsWrap:ReadFloat(bsData)
-                        local Y = bsWrap:ReadFloat(bsData)
-                        local Z = bsWrap:ReadFloat(bsData)
-                        bsWrap:Reset(bsData)
-
-                        Pickups[iPickupID] = {
-                            ModelID = iModelID,
-                            SpawnType = iSpawnType,
-                            X = X,
-                            Y = Y,
-                            Z = Z
-                        }
-                    end
-                    if rpcId == 63 then
-                        local iPickupID = bsWrap:Read32(bsData)
-                        Pickups[iPickupID] = nil
                     end
                     if rpcId == 168 then
                         local ObjectTarget = bsWrap:Read16(bsData)
@@ -7311,10 +7271,6 @@ local unload = false
             end 
         local function OnSendRPC(rpcId, bsData)
                 if Panic.EveryThingExceptVisuals.v == false and unload == false then
-                    if rpcId == 131 then
-                        local iPickupID = bsWrap:Read32(bsData)
-                        Pickups[iPickupID] = nil
-                    end
                     if rpcId == 168 then
                         local ObjectTarget = bsWrap:Read16(bsData)
                         local VehicleTarget = bsWrap:Read16(bsData) 
@@ -7858,7 +7814,6 @@ local unload = false
         if SilentCrosshair == nil then
             SilentCrosshair = vecCrosshair
         end
-        
     --Timers Variables
         if(getMyVars.update(deltaTime)) then
             get.AllMyVariables()
@@ -7878,9 +7833,9 @@ local unload = false
             for slot, weapons in pairs(Extra.AutoDeleteWeapon) do
                 for weapon, value in pairs(weapons) do
                     if value.v then
-                        local weaponName = weapon:lower()
+                        local weaponName = weapon:gsub("%s", ""):lower()
                         for _, weaponData in pairs(weaponInfo) do
-                            if read.containsSubstringIgnoreCase(weaponData.name, weaponName) then
+                            if weaponData.name:gsub("%s", ""):lower() == weaponName then
                                 set.RemovePlayerWeapon(weaponData.id)
                                 break
                             end
@@ -9687,13 +9642,33 @@ local unload = false
                             for id = 1, 4096 do
                                 local pfive = Utils:readMemory(ptwo + id * 4, 4, false)
                                 if pfive < 0 or pfive > 0 then
-                                    pfive = Utils:readMemory(pthree + id * 20, 4, false)
-                                    if pfive == Extra.PickUP.Model1.v or pfive == Extra.PickUP.Model2.v or pfive == Extra.PickUP.Model3.v then
-                                        closestPickupID = modelID
-                                        local bData = BitStream()
-                                        bsWrap:Write32(bData, id)
-                                        SendRPC(131,bData)
-                                        break 
+                                    local Model = Utils:readMemory(pthree + id * 20, 4, false)
+                                    if Model == Extra.PickUP.Model1.v or Model == Extra.PickUP.Model2.v or Model == Extra.PickUP.Model3.v then
+                                        local Offset = pthree + id * 20
+                                        local Type = Utils:readMemory(Offset + 4, 4, false)
+                                        local X = Utils:readMemory(Offset + 8, 4, false)
+                                        local Y = Utils:readMemory(Offset + 12, 4, false)
+                                        local Z = Utils:readMemory(Offset + 16, 4, false)
+
+                                        local bsData = BitStream()
+                                        bsWrap:Write32(bsData, X)
+                                        bsWrap:Write32(bsData, Y)
+                                        bsWrap:Write32(bsData, Z)
+                                        X = bsWrap:ReadFloat(bsData)
+                                        Y = bsWrap:ReadFloat(bsData)
+                                        Z = bsWrap:ReadFloat(bsData)
+
+                                        bsWrap:Reset(bsData)
+                                        local PickUPpos = CVector(X, Y, Z)
+                                        local vMyPos = Players:getPlayerPosition(vMy.ID)
+                                        local Dist = Utils:Get3Ddist(vMyPos, PickUPpos)
+                                        if Dist <= Extra.PickUP.Dist.v or Extra.PickUP.Dist.v == 0 then
+                                            closestPickupID = modelID
+                                            local bData = BitStream()
+                                            bsWrap:Write32(bData, id)
+                                            SendRPC(131,bData)
+                                            break 
+                                        end
                                     end
                                 end
                             end
@@ -12643,7 +12618,7 @@ local unload = false
                     if WeaponList == true then
                         Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:Combo("Slot",SHAcKvar.WeaponSlotCombo,"All Slots\0Slot 0\0Slot 1\0Slot 2\0Slot 3\0Slot 4\0Slot 5\0Slot 6\0Slot 7\0Slot 8\0Slot 9\0Slot 10\0Slot 11\0Slot 12\0\0",25) 
                         if SHAcKvar.WeaponSlotCombo.v == 1 or SHAcKvar.WeaponSlotCombo.v == 0 then
-                            Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Brass Knuckles",Extra.AutoDeleteWeapon.Slot0.brass)
+                            Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Brass Knuckles",Extra.AutoDeleteWeapon.Slot0.brassknuckles)
                         end
                         if SHAcKvar.WeaponSlotCombo.v == 2 or SHAcKvar.WeaponSlotCombo.v == 0 then
                             Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Gold Club",Extra.AutoDeleteWeapon.Slot1.golf)
@@ -12675,11 +12650,11 @@ local unload = false
                             Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("m4",Extra.AutoDeleteWeapon.Slot5.m4)
                         end
                         if SHAcKvar.WeaponSlotCombo.v == 7 or SHAcKvar.WeaponSlotCombo.v == 0 then
-                            Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Country-Rifle",Extra.AutoDeleteWeapon.Slot6.cuntgun)
+                            Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Country-Rifle",Extra.AutoDeleteWeapon.Slot6.countryrifle)
                             Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Sniper-Rifle",Extra.AutoDeleteWeapon.Slot6.sniper)
                         end
                         if SHAcKvar.WeaponSlotCombo.v == 8 or SHAcKvar.WeaponSlotCombo.v == 0 then
-                            Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Rocket Launcher",Extra.AutoDeleteWeapon.Slot7.rocket)
+                            Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Rocket Launcher",Extra.AutoDeleteWeapon.Slot7.rocketlauncher)
                             Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Heatseeker",Extra.AutoDeleteWeapon.Slot7.heatseeker)
                             Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Flamethrower",Extra.AutoDeleteWeapon.Slot7.flamethrower)
                             Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Minigun",Extra.AutoDeleteWeapon.Slot7.minigun)
@@ -12695,16 +12670,16 @@ local unload = false
                             Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Camera",Extra.AutoDeleteWeapon.Slot9.camera)
                         end
                         if SHAcKvar.WeaponSlotCombo.v == 11 or SHAcKvar.WeaponSlotCombo.v == 0 then
-                            Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Purple Dildo",Extra.AutoDeleteWeapon.Slot10.purple)
+                            Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Purple Dildo",Extra.AutoDeleteWeapon.Slot10.purpledildo)
                             Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Dildo",Extra.AutoDeleteWeapon.Slot10.dildo)
                             Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Vibrator",Extra.AutoDeleteWeapon.Slot10.vibrator)
-                            Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Silver Vibrator",Extra.AutoDeleteWeapon.Slot10.silver)
+                            Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Silver Vibrator",Extra.AutoDeleteWeapon.Slot10.silvervibrator)
                             Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Flowers",Extra.AutoDeleteWeapon.Slot10.flowers)
                             Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Cane",Extra.AutoDeleteWeapon.Slot10.cane)
                         end
                         if SHAcKvar.WeaponSlotCombo.v == 12 or SHAcKvar.WeaponSlotCombo.v == 0 then
-                            Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Night Vision",Extra.AutoDeleteWeapon.Slot11.night)
-                            Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Thermal Vision",Extra.AutoDeleteWeapon.Slot11.thermal)
+                            Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Night Vision",Extra.AutoDeleteWeapon.Slot11.nightvision)
+                            Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Thermal Vision",Extra.AutoDeleteWeapon.Slot11.thermalvision)
                             Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Parachute",Extra.AutoDeleteWeapon.Slot11.Parachute)
                         end
                         if SHAcKvar.WeaponSlotCombo.v == 13 or SHAcKvar.WeaponSlotCombo.v == 0 then
@@ -12760,7 +12735,11 @@ local unload = false
                         if Extra.PickUP.HP.v < 100 then
                             Menu:Text("") 
                         end
-                        Menu:SameLine(SHAkMenu.menutransitorstaticreversed+90,SHAkMenu.menutransitorstaticreversed+90) Menu:SliderInt("PickUP##780",Extra.PickUP.Model3, 0, 100000)
+                        Menu:SameLine(SHAkMenu.menutransitorstaticreversed+90,SHAkMenu.menutransitorstaticreversed+90) Menu:SliderInt("PickUP##780",Extra.PickUP.Model3, 0, 10000)
+                        if Extra.PickUP.HP.v == 100 then
+                            Menu:Text("") 
+                        end
+                        Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:SliderFloat("Distance##678", Extra.PickUP.Dist, 0, 350)
 
                     Menu:Separator()
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox2("Auto Reply", Extra.AutoReply[0])
