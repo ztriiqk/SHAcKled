@@ -1,5 +1,5 @@
 local bit = require("bit32")
-local luaVersion = "1.18"
+local luaVersion = "1.19"
 local unload = false
 
 --Timers 
@@ -37,6 +37,7 @@ local unload = false
         local ms = Timers(1)
         local SendCMD = Timers(1)
         local PickUP = Timers(1)
+        local HydraThrustDelay = Timers(5)
         local Macro = Timers(10)
         local Timerss = Timers(10)
         local getMyVars = Timers(15)
@@ -461,21 +462,35 @@ local unload = false
                     }
             }
         local Godmode = {
-                PlayerEnable = ImBool(false),
-                PlayerCollision = ImBool(false),
-                PlayerMelee = ImBool(false),
-                PlayerBullet = ImBool(false),
-                PlayerFire = ImBool(false),
-                PlayerExplosion = ImBool(false),
-                VehicleEnable = ImBool(false),
-                VehicleCollision = ImBool(false),
-                VehicleMelee = ImBool(false),
-                VehicleBullet = ImBool(false),
-                VehicleFire = ImBool(false),
-                VehicleExplosion = ImBool(false),
-                InvisibleCar = 0
+                Player = {
+                    Enable = ImBool(false),
+                    Collision = ImBool(false),
+                    Melee = ImBool(false),
+                    Bullet = ImBool(false),
+                    Fire = ImBool(false),
+                    Explosion = ImBool(false)
+                },
+                Vehicle = {
+                    Enable = ImBool(false),
+                    Collision = ImBool(false),
+                    Melee = ImBool(false),
+                    Bullet = ImBool(false),
+                    Fire = ImBool(false),
+                    Explosion = ImBool(false)
+                },
             }
         local Vehicle = {
+                Hydra = {
+                    FastLock = { 
+                        Lock = ImBool(false),
+                        Visual = ImBool(false)
+                    },
+                    Thrust = {
+                        Enable = ImBool(false), 
+                        Key = ImInt(49),
+                        Speed = ImInt(50)
+                    }
+                },
                 NoCarCollision = ImBool(false),
                 NoCarCollisionKey = ImInt(0),
                 AntiCarFlip = ImBool(false),
@@ -782,8 +797,7 @@ local unload = false
                                 detonator = ImBool(false)
                             }
                     },
-                fuckKeyStrokes =
-                    {
+                fuckKeyStrokes = {
                         Enable = ImBool(false),
                         Mode = ImInt(0),
                         Key = 
@@ -799,30 +813,25 @@ local unload = false
                                 tab = ImBool(false)
                             },
                     },
-                RemoveObjectTemp =
-                    {
+                RemoveObjectTemp = {
                         Enable = ImBool(false),
                         Key = ImInt(0),
                         Time = ImInt(1000),
                     },
-                AutoReply = 
-                    {
+                AutoReply = {
                         [0] = ImBool(false),
                         [1] = ImBool(false),
                         [2] = ImBool(false),
                     },
-                Message = 
-                    {
+                Message = {
                         [1] = ImBuffer("nothing",255),
                         [2] = ImBuffer("nothing",255),
                     },
-                Reply = 
-                    {
+                Reply = {
                         [1] = ImBuffer("nothing",255),
                         [2] = ImBuffer("nothing",255),
                     },
-                ExtraWS = 
-                    {
+                ExtraWS = {
                         Enable = ImBool(false),
                         OnKey = ImBool(false),
                         Key = ImInt(1),
@@ -844,23 +853,23 @@ local unload = false
                 SetWeaponSkill = ImBool(false),
                 SetWeaponSkillLevel = ImInt(0), 
                 SendCMD = {
-                    Enable = ImBool(false),
-                    Command = ImBuffer("healme",20),
-                    Times = ImInt(1),
-                    Delay = ImInt(2000),
-                    HP = ImInt(0),
-                    Armour = ImInt(0)
-                },
+                        Enable = ImBool(false),
+                        Command = ImBuffer("healme",20),
+                        Times = ImInt(1),
+                        Delay = ImInt(2000),
+                        HP = ImInt(0),
+                        Armour = ImInt(0)
+                    },
                 PickUP = { 
-                    Enable = ImBool(false),
-                    Model1 = ImInt(11736),
-                    Model2 = ImInt(11738),
-                    Model3 = ImInt(1242),
-                    Delay = ImInt(1000),
-                    HP = ImInt(100),
-                    Armour = ImInt(10),
-                    Dist = ImFloat(0)
-                },
+                        Enable = ImBool(false),
+                        Model1 = ImInt(11736),
+                        Model2 = ImInt(11738),
+                        Model3 = ImInt(1242),
+                        Delay = ImInt(1000),
+                        HP = ImInt(100),
+                        Armour = ImInt(10),
+                        Dist = ImFloat(0)
+                    },
                 RequestSpawn = ImBool(false),
                 RequestSpawnHP = ImInt(0),
                 RequestSpawnArmour = ImInt(0),
@@ -1405,8 +1414,10 @@ local unload = false
     local send = {}
 -- 
 --! Variables
-    local v =
-        {
+    local v = {
+            HydraThrustState = false,
+            ThrustWait = false,
+            InvisibleCar = 0,
             PickUP = 0,
             SendCMD = 0,
             SampVer = Utils:getSampVer()+1,
@@ -2064,7 +2075,6 @@ local unload = false
             handle:close()
             return result
         end
-
     function get.updateInfo()
             local url = "https://raw.githubusercontent.com/ztriiqk/SHAcKled/main/update.txt"
             local content = get.GitHubPageContent(url)
@@ -2710,6 +2720,12 @@ local unload = false
             end
         function Vehicle.SaveAsString()
                 local output = ""
+                
+                output = output .. string.format("Vehicle.Hydra.Thrust.Enable = %s", Vehicle.Hydra.Thrust.Enable.v) .. "\n"
+                output = output .. string.format("Vehicle.Hydra.Thrust.Key = %d", Vehicle.Hydra.Thrust.Key.v) .. "\n"
+                output = output .. string.format("Vehicle.Hydra.Thrust.Speed = %d", Vehicle.Hydra.Thrust.Speed.v) .. "\n"
+                output = output .. string.format("Vehicle.Hydra.FastLock.Lock = %s", Vehicle.Hydra.FastLock.Lock.v) .. "\n"
+                output = output .. string.format("Vehicle.Hydra.FastLock.Visual = %s", Vehicle.Hydra.FastLock.Visual.v) .. "\n"
                 output = output .. string.format("Vehicle.Unlock = %s",Vehicle.Unlock.v) .. "\n" 
                 output = output .. string.format("Vehicle.AutoAttachTrailer = %s",Vehicle.AutoAttachTrailer.v) .. "\n" 
                 output = output .. string.format("Vehicle.NeverOffEngine = %s",Vehicle.NeverOffEngine.v) .. "\n" 
@@ -3077,18 +3093,18 @@ local unload = false
             end
         function Godmode.SaveAsString()
                 local output = ""
-                output = output .. string.format("Godmode.PlayerEnable = %s",Godmode.PlayerEnable.v).. "\n"
-                output = output .. string.format("Godmode.PlayerCollision = %s",Godmode.PlayerCollision.v).. "\n"
-                output = output .. string.format("Godmode.PlayerMelee = %s",Godmode.PlayerMelee.v).. "\n"
-                output = output .. string.format("Godmode.PlayerBullet = %s",Godmode.PlayerBullet.v).. "\n"
-                output = output .. string.format("Godmode.PlayerFire = %s",Godmode.PlayerFire.v).. "\n"
-                output = output .. string.format("Godmode.PlayerExplosion = %s",Godmode.PlayerExplosion.v).. "\n"
-                output = output .. string.format("Godmode.VehicleEnable = %s",Godmode.VehicleEnable.v).. "\n"
-                output = output .. string.format("Godmode.VehicleCollision = %s",Godmode.VehicleCollision.v).. "\n"
-                output = output .. string.format("Godmode.VehicleMelee = %s",Godmode.VehicleMelee.v).. "\n"
-                output = output .. string.format("Godmode.VehicleBullet = %s",Godmode.VehicleBullet.v).. "\n"
-                output = output .. string.format("Godmode.VehicleFire = %s",Godmode.VehicleFire.v).. "\n"
-                output = output .. string.format("Godmode.VehicleExplosion = %s",Godmode.VehicleExplosion.v).. "\n"
+                output = output .. string.format("Godmode.Player.Enable = %s",Godmode.Player.Enable.v).. "\n"
+                output = output .. string.format("Godmode.Player.Collision = %s",Godmode.Player.Collision.v).. "\n"
+                output = output .. string.format("Godmode.Player.Melee = %s",Godmode.Player.Melee.v).. "\n"
+                output = output .. string.format("Godmode.Player.Bullet = %s",Godmode.Player.Bullet.v).. "\n"
+                output = output .. string.format("Godmode.Player.Fire = %s",Godmode.Player.Fire.v).. "\n"
+                output = output .. string.format("Godmode.Player.Explosion = %s",Godmode.Player.Explosion.v).. "\n"
+                output = output .. string.format("Godmode.Vehicle.Enable = %s",Godmode.Vehicle.Enable.v).. "\n"
+                output = output .. string.format("Godmode.Vehicle.Collision = %s",Godmode.Vehicle.Collision.v).. "\n"
+                output = output .. string.format("Godmode.Vehicle.Melee = %s",Godmode.Vehicle.Melee.v).. "\n"
+                output = output .. string.format("Godmode.Vehicle.Bullet = %s",Godmode.Vehicle.Bullet.v).. "\n"
+                output = output .. string.format("Godmode.Vehicle.Fire = %s",Godmode.Vehicle.Fire.v).. "\n"
+                output = output .. string.format("Godmode.Vehicle.Explosion = %s",Godmode.Vehicle.Explosion.v).. "\n"
                 return output
             end
         function SHAkMenu.SaveAsString()
@@ -3318,6 +3334,11 @@ local unload = false
                 Extra.ForceGravity = read.BoolFromString(var1[cfglines],"Extra.ForceGravity",lines[cfglines]) cfglines = cfglines + 1
                 Extra.GravityFloat = read.FloatFromString(var1[cfglines],"Extra.GravityFloat",lines[cfglines]) cfglines = cfglines + 1
                 Extra.SpecialAction = read.IntFromString(var1[cfglines],"Extra.SpecialAction",lines[cfglines]) cfglines = cfglines + 1
+                Vehicle.Hydra.Thrust.Enable = read.BoolFromString(var1[cfglines],"Vehicle.Hydra.Thrust.Enable",lines[cfglines]) cfglines = cfglines + 1
+                Vehicle.Hydra.Thrust.Key = read.IntFromString(var1[cfglines],"Vehicle.Hydra.Thrust.Key",lines[cfglines]) cfglines = cfglines + 1
+                Vehicle.Hydra.Thrust.Speed = read.IntFromString(var1[cfglines],"Vehicle.Hydra.Thrust.Speed",lines[cfglines]) cfglines = cfglines + 1
+                Vehicle.Hydra.FastLock.Lock = read.BoolFromString(var1[cfglines],"Vehicle.Hydra.FastLock.Lock",lines[cfglines]) cfglines = cfglines + 1
+                Vehicle.Hydra.FastLock.Visual = read.BoolFromString(var1[cfglines],"Vehicle.Hydra.FastLock.Visual",lines[cfglines]) cfglines = cfglines + 1
                 Vehicle.Unlock = read.BoolFromString(var1[cfglines],"Vehicle.Unlock",lines[cfglines]) cfglines = cfglines + 1
                 Vehicle.AutoAttachTrailer = read.BoolFromString(var1[cfglines],"Vehicle.AutoAttachTrailer",lines[cfglines]) cfglines = cfglines + 1
                 Vehicle.NeverOffEngine = read.BoolFromString(var1[cfglines],"Vehicle.NeverOffEngine",lines[cfglines]) cfglines = cfglines + 1
@@ -3644,18 +3665,18 @@ local unload = false
                 BulletRebuff.SameWeapon = read.BoolFromString(var1[cfglines],"BulletRebuff.SameWeapon",lines[cfglines]) cfglines = cfglines + 1
                 BulletRebuff.Clist = read.BoolFromString(var1[cfglines],"BulletRebuff.Clist",lines[cfglines]) cfglines = cfglines + 1
                 BulletRebuff.Force = read.BoolFromString(var1[cfglines],"BulletRebuff.Force",lines[cfglines]) cfglines = cfglines + 1
-                Godmode.PlayerEnable = read.BoolFromString(var1[cfglines],"Godmode.PlayerEnable",lines[cfglines]) cfglines = cfglines + 1
-                Godmode.PlayerCollision = read.BoolFromString(var1[cfglines],"Godmode.PlayerCollision",lines[cfglines]) cfglines = cfglines + 1
-                Godmode.PlayerMelee = read.BoolFromString(var1[cfglines],"Godmode.PlayerMelee",lines[cfglines]) cfglines = cfglines + 1
-                Godmode.PlayerBullet = read.BoolFromString(var1[cfglines],"Godmode.PlayerBullet",lines[cfglines]) cfglines = cfglines + 1
-                Godmode.PlayerFire = read.BoolFromString(var1[cfglines],"Godmode.PlayerFire",lines[cfglines]) cfglines = cfglines + 1
-                Godmode.PlayerExplosion = read.BoolFromString(var1[cfglines],"Godmode.PlayerExplosion",lines[cfglines]) cfglines = cfglines + 1
-                Godmode.VehicleEnable = read.BoolFromString(var1[cfglines],"Godmode.VehicleEnable",lines[cfglines]) cfglines = cfglines + 1
-                Godmode.VehicleCollision = read.BoolFromString(var1[cfglines],"Godmode.VehicleCollision",lines[cfglines]) cfglines = cfglines + 1
-                Godmode.VehicleMelee = read.BoolFromString(var1[cfglines],"Godmode.VehicleMelee",lines[cfglines]) cfglines = cfglines + 1
-                Godmode.VehicleBullet = read.BoolFromString(var1[cfglines],"Godmode.VehicleBullet",lines[cfglines]) cfglines = cfglines + 1
-                Godmode.VehicleFire = read.BoolFromString(var1[cfglines],"Godmode.VehicleFire",lines[cfglines]) cfglines = cfglines + 1
-                Godmode.VehicleExplosion = read.BoolFromString(var1[cfglines],"Godmode.VehicleExplosion",lines[cfglines]) cfglines = cfglines + 1
+                Godmode.Player.Enable = read.BoolFromString(var1[cfglines],"Godmode.Player.Enable",lines[cfglines]) cfglines = cfglines + 1
+                Godmode.Player.Collision = read.BoolFromString(var1[cfglines],"Godmode.Player.Collision",lines[cfglines]) cfglines = cfglines + 1
+                Godmode.Player.Melee = read.BoolFromString(var1[cfglines],"Godmode.Player.Melee",lines[cfglines]) cfglines = cfglines + 1
+                Godmode.Player.Bullet = read.BoolFromString(var1[cfglines],"Godmode.Player.Bullet",lines[cfglines]) cfglines = cfglines + 1
+                Godmode.Player.Fire = read.BoolFromString(var1[cfglines],"Godmode.Player.Fire",lines[cfglines]) cfglines = cfglines + 1
+                Godmode.Player.Explosion = read.BoolFromString(var1[cfglines],"Godmode.Player.Explosion",lines[cfglines]) cfglines = cfglines + 1
+                Godmode.Vehicle.Enable = read.BoolFromString(var1[cfglines],"Godmode.Vehicle.Enable",lines[cfglines]) cfglines = cfglines + 1
+                Godmode.Vehicle.Collision = read.BoolFromString(var1[cfglines],"Godmode.Vehicle.Collision",lines[cfglines]) cfglines = cfglines + 1
+                Godmode.Vehicle.Melee = read.BoolFromString(var1[cfglines],"Godmode.Vehicle.Melee",lines[cfglines]) cfglines = cfglines + 1
+                Godmode.Vehicle.Bullet = read.BoolFromString(var1[cfglines],"Godmode.Vehicle.Bullet",lines[cfglines]) cfglines = cfglines + 1
+                Godmode.Vehicle.Fire = read.BoolFromString(var1[cfglines],"Godmode.Vehicle.Fire",lines[cfglines]) cfglines = cfglines + 1
+                Godmode.Vehicle.Explosion = read.BoolFromString(var1[cfglines],"Godmode.Vehicle.Explosion",lines[cfglines]) cfglines = cfglines + 1
                 SHAkMenu.ChatMessage = read.BoolFromString(var1[cfglines],"SHAkMenu.ChatMessage",lines[cfglines]) cfglines = cfglines + 1
                 SHAkMenu.FpsBoost = read.BoolFromString(var1[cfglines],"SHAkMenu.FpsBoost",lines[cfglines]) cfglines = cfglines + 1
                 SHAkMenu.RefreshHZ = read.BoolFromString(var1[cfglines],"SHAkMenu.RefreshHZ",lines[cfglines]) cfglines = cfglines + 1
@@ -4013,45 +4034,122 @@ local unload = false
                 end
             end
     --Object & Vehicles
-        function get.PickupPool()
-            local offset1
-            local offset2
-            local offset3
-
-            if v.SampVer == 1 then -- r1
-                offset1 = 0x21A0F8
-                offset2 = 0x3CD
-                offset3 = 0x20
-            elseif v.SampVer == 2 then -- r2
-                offset1 = 0x21A100
-                offset2 = 0x3C5
-                offset3 = 0x10
-            elseif v.SampVer == 3 then -- r3
-                offset1 = 0x26E8DC
-                offset2 = 0x3DE
-                offset3 = 0x10
-            elseif v.SampVer == 4 then -- r4
-                offset1 = 0x26EA0C
-                offset2 = 0x3DE
-                offset3 = 0x10
-            elseif v.SampVer == 5 then -- r4-2
-                offset1 = 0x26EA0C
-                offset2 = 0x3DE
-                offset3 = 0x8
-            elseif v.SampVer == 5 then -- 03dl
-                offset1 = 0x2ACA24
-                offset2 = 0x3DE
-                offset3 = 0x10
+        function set.HydraLockOnDelay(LockOn, Visual)
+            if LockOn == true then
+                Utils:writeMemory(0x6E363A, 0, 4, false) -- Actual Lock On
+            else
+                Utils:writeMemory(0x6E363A, 1500, 4, false)
             end
-                local SAMP_INFO_OFFSET = v.SampAdr + offset1  
+            if Visual == true then
+                Utils:writeMemory(0x6E36FB, 0, 4, false) -- Only Visual
+            else
+                Utils:writeMemory(0x6E36FB, 1500, 4, false)
+            end
+        end
+        set.HydraLockOnDelay(Vehicle.Hydra.FastLock.Lock.v, Vehicle.Hydra.FastLock.Visual.v)
+        function set.HydraThrust()
+            
+                --Utils:writeMemory(0x8D33DC, 25.0, 4, false)
+                local HARRIER_NOZZLE_ROTATERATE = Utils:readMemory(0x8D33DC, 4, false)
+                local defaultRotateRate = 25.0
+                local vehicle = CVehicleST
+                if (vehicle > 0) then
+                    local vModel = Cars:getCarModel(vMy.Vehicle)
+                    if (vModel == 520) then
+                        --local val = Utils:readMemory(vehicle + 0x86C, 4, false)
+                        local ThrustState = Utils:readMemory(vehicle + 0x86C, 4, false)
+                        local expectState = ThrustState
+                        if (v.HydraThrustState == true) then
+                            if ThrustState ~= 0 then
+                                expectState = ThrustState - Vehicle.Hydra.Thrust.Speed.v
+                                if expectState < 0 then
+                                    expectState = 0
+                                end
+                            else
+                                v.ThrustWait = false
+                            end
+                        else
+                            if ThrustState ~= 5000 then
+                                expectState = ThrustState + Vehicle.Hydra.Thrust.Speed.v
+                                if expectState > 5000 then
+                                    expectState = 5000
+                                end
+                            else
+                                v.ThrustWait = false
+                            end
+                        end
+                        Utils:writeMemory(vehicle + 0x86C, expectState, 4, false)
+                    end
+                end
+            end
+        function get.SAMPCPools()
+                local cnetgame
+                local cpools
+                if v.SampVer == 1 then -- r1
+                    cnetgame = 0x21A0F8
+                    cpools = 0x3CD
+                elseif v.SampVer == 2 then -- r2
+                    cnetgame = 0x21A100
+                    cpools = 0x3C5
+                elseif v.SampVer == 3 then -- r3
+                    cnetgame = 0x26E8DC
+                    cpools = 0x3DE
+                elseif v.SampVer == 4 then -- r4
+                    cnetgame = 0x26EA0C
+                    cpools = 0x3DE
+                elseif v.SampVer == 5 then -- r4-2
+                    cnetgame = 0x26EA0C
+                    cpools = 0x3DE
+                elseif v.SampVer == 5 then -- 03dl
+                    cnetgame = 0x2ACA24
+                    cpools = 0x3DE
+                end
+                return cnetgame, cpools
+            end
+        function get.PickupPool()
+            local cnetgame, cpools = get.SAMPCPools()
+            local pickups
+            if v.SampVer == 1 then -- r1
+                pickups = 0x20
+            elseif v.SampVer == 2 then -- r2
+                pickups = 0x10
+            elseif v.SampVer == 3 then -- r3
+                pickups = 0x10
+            elseif v.SampVer == 4 then -- r4
+                pickups = 0x10
+            elseif v.SampVer == 5 then -- r4-2
+                pickups = 0x8
+            elseif v.SampVer == 5 then -- 03dl
+                pickups = 0x10
+            end
+                local SAMP_INFO_OFFSET = v.SampAdr + cnetgame  
                 SAMP_INFO_OFFSET = Utils:readMemory(SAMP_INFO_OFFSET, 4, false)
 
-                local SAMP_PPOOLS_OFFSET = SAMP_INFO_OFFSET + offset2  
+                local SAMP_PPOOLS_OFFSET = SAMP_INFO_OFFSET + cpools  
                 SAMP_PPOOLS_OFFSET = Utils:readMemory(SAMP_PPOOLS_OFFSET, 4, false)
 
-                local SAMP_PPOOL_PICKUP_OFFSET = SAMP_PPOOLS_OFFSET + offset3  
+                local SAMP_PPOOL_PICKUP_OFFSET = SAMP_PPOOLS_OFFSET + pickups  
                 SAMP_PPOOL_PICKUP_OFFSET = Utils:readMemory(SAMP_PPOOL_PICKUP_OFFSET, 4, false)
                 return SAMP_PPOOL_PICKUP_OFFSET
+            end
+        function get.VehicleFromPool(nId)
+                local cnetgame, cpools = get.SAMPCPools()
+                cnetgame = Utils:readMemory(v.SampAdr + cnetgame, 4, false)
+                cpools = Utils:readMemory(cnetgame + cpools, 4, false)
+                local vehiclePool = Utils:readMemory(cpools + 0x1C, 4, false)
+
+                if (nId < 2000) then
+                    local isEmptySlot = Utils:readMemory((vehiclePool + 0x3074) + (nId * 4), 4, false) 
+                    if isEmptySlot ~= 0 then
+                        local vehicleInfo = Utils:readMemory((vehiclePool + 0x1134) + (nId * 4), 4, false)
+                        --local vehicle = Utils:readMemory(vehicleInfo + 4, 4, false)
+                        if (vehicleInfo > 0) then
+                            return vehicleInfo
+                        end      
+                    end
+                end
+
+                return nil
             end
         function get.NearestVehiclesFromScreen()
                 local vMyCar = vMy.Vehicle
@@ -4064,7 +4162,7 @@ local unload = false
                             local   distance = Utils:Get3Ddist(Car , CVector(vMy.OFData.Pos.fX,vMy.OFData.Pos.fY,vMy.OFData.Pos.fZ))
                             local fov = Utils:Get2Ddist(middlescreen,vEnScreen)
                             vehicles.fov[i] = fov
-                            if i == 1999 and Godmode.InvisibleCar == 1 then 
+                            if i == 1999 and v.InvisibleCar == 1 then 
                                 vehicles.dist[i] = nil
                             else
                                 vehicles.dist[i] =  distance
@@ -5348,7 +5446,7 @@ local unload = false
                 local nearest
                 local vehiclePos = Cars:getCarPosition(wVehicleID)
                 
-                if Godmode.InvisibleCar ~= 1 and wVehicleID ~= 1999 then
+                if v.InvisibleCar ~= 1 and wVehicleID ~= 1999 then
                     if havedriver == true and Teleport.toVehicleDriver.v then
                         for i, _ in pairs(players.id) do
                             if Players:isPlayerStreamed(i) then
@@ -5657,14 +5755,14 @@ local unload = false
                         Driver = IC.VehicleID
                     else
                         Driver = -1
-                        Godmode.InvisibleCar = 1
+                        v.InvisibleCar = 1
                     end
                 else
                     if ID ~= 1999 then
                         Driver = 0
                     else
                         Driver = -1
-                        Godmode.InvisibleCar = 1
+                        v.InvisibleCar = 1
                     end
                 end
                 local vec = Players:getAimData(vMy.ID)
@@ -5672,10 +5770,19 @@ local unload = false
                 local deltaY = (vec.vecAimf1.fY+IC.Pos.fY)-IC.Pos.fY
                 local radians = math.atan2(deltaY, deltaX)
                 local degrees = (radians * 180) / math.pi - 90
+                if Driver == 0 then
+                    if degrees < 0 then degrees = degrees + 360 end
+                    degrees = degrees + 90
+                    if degrees < 0 then degrees = degrees + 360 end
+                end
                 RemoveVehicle(ID)
                 local X, Y
-                if Driver ~= 0 then X = IC.Pos.fX else X = vec.vecAimPos.fX end
-                if Driver ~= 0 then Y = IC.Pos.fY else Y = vec.vecAimPos.fY end
+                if Driver ~= 0 then X = IC.Pos.fX else 
+                    X = IC.Pos.fX+(vec.vecAimf1.fX * 2) 
+                end
+                if Driver ~= 0 then Y = IC.Pos.fY else 
+                    Y = IC.Pos.fY+(vec.vecAimf1.fY * 2) 
+                end
                 bsWrap:Write16(bsData, ID)
                 bsWrap:Write32(bsData, model)
                 bsWrap:WriteFloat(bsData, X)
@@ -5715,7 +5822,7 @@ local unload = false
                     set.EngineState(ID)
                 end
                 if Driver == -1 then
-                    Godmode.InvisibleCar = 1
+                    v.InvisibleCar = 1
                     SHAcKvar.InvCar = 0
                     SHAcKvar.InvTimer = 0
                 end
@@ -5772,7 +5879,7 @@ local unload = false
             end
     --RPC/PACKET
         local function OnReceivePacket(packetId, bsData)
-                if Panic.EveryThingExceptVisuals.v == false and unload == false and Godmode.InvisibleCar ~= nil and Godmode.InvisibleCar ~= 1 then
+                if Panic.EveryThingExceptVisuals.v == false and unload == false and v.InvisibleCar ~= nil and v.InvisibleCar ~= 1 then
                 local Packet_ID = bsWrap:Read8(bsData)
                 local PlayerID = bsWrap:Read16(bsData)
                 if packetId == 207 then -- ONFOOT SYNC
@@ -5883,7 +5990,7 @@ local unload = false
                         Movement.AntiStun.Chance = maths.Chance(StunCount)
                         if Movement.AntiStun.On == 1 then
                             local ArmorLeft
-                            if Godmode.PlayerEnable.v == false or Godmode.PlayerEnable.v and Godmode.PlayerBullet.v == false then
+                            if Godmode.Player.Enable.v == false or Godmode.Player.Enable.v and Godmode.Player.Bullet.v == false then
                                 if Movement.AntiStun.SaveDamageAR ~= 0 and Movement.AntiStun.SaveDamageAR == vMy.OFData.Armor then
                                     --local bsDataa = BitStream()
                                     --bsWrap:WriteFloat(bsDataa, armour) 
@@ -6143,7 +6250,12 @@ local unload = false
                         local arg = bsWrap:Read32(bsData)
                         local offset = bsWrap:Read16(bsData)
                         local readSize = bsWrap:Read16(bsData)
-                
+                        if Extra.Mobile.v then
+                            if requestType == 72 then
+                                return false
+                            end
+                        end
+
                         if readSize > 256 or readSize < 2 or offset > 256 then
                             return
                         end
@@ -6200,6 +6312,9 @@ local unload = false
                         local InteriorColor2 = bsWrap:Read32(bsData) 
                         local Health = bsWrap:ReadFloat(bsData) 
                         local interior = bsWrap:Read8(bsData) 
+                        if vMy.Vehicle == vehicle and vMy.Vehicle == 1999 then
+                            return false
+                        end
                         vehicleParts.doors[vehicle] = bsWrap:Read32(bsData) 
                         vehicleParts.panels[vehicle] = bsWrap:Read32(bsData) 
                         vehicleParts.lights[vehicle] = bsWrap:Read8(bsData) 
@@ -6229,16 +6344,6 @@ local unload = false
                             return false
                         end
                     end
-                    if rpcId == 103 then
-                        local type8 = bsWrap:Read8(bsData)
-                        local arg = bsWrap:Read32(bsData)
-                        local response = bsWrap:Read8(bsData)
-                        if type8 == 72 then
-                            if Extra.Mobile.v then
-                                return false
-                            end
-                        end
-                    end
                 --Auto Reply
                     if Extra.AutoReply[0].v then
                         if rpcId == 93 then
@@ -6247,7 +6352,6 @@ local unload = false
                                 local dMessageLength = bsWrap:Read32(bsData)
                                 local buf = ImBuffer(dMessageLength)
                                 bsWrap:ReadBuf(bsData, buf, dMessageLength)
-                        
                                 if buf.v ~= nil then
                                     local cleanedText = string.gsub(buf.v, "{%a+}", "")
                                     local cleanedText = string.lower(cleanedText)
@@ -6521,7 +6625,6 @@ local unload = false
                                     else
                                         var = "== 0"
                                     end
-                                    
                                     if bit.band(keys, 0x0004) == (var == "> 0" and 4 or 0) and Extra.fuckKeyStrokes.Key.fire.v then SampKeys.fire = 4 else SampKeys.fire = 0 end
                                     if bit.band(keys, 0x0080) == (var == "> 0" and 128 or 0) and Extra.fuckKeyStrokes.Key.aim.v then SampKeys.aim = 128 else SampKeys.aim = 0 end
                                     if bit.band(keys, 0x0002) == (var == "> 0" and 2 or 0) and Extra.fuckKeyStrokes.Key.horn_crouch.v then SampKeys.horn_crouch = 2 else SampKeys.horn_crouch = 0 end
@@ -6581,21 +6684,10 @@ local unload = false
                         local surfing_vehicle_id = bsWrap:Read16(bsData)  
                         local animation_id = bsWrap:Read16(bsData)  
                         local animation_flags = bsWrap:Read16(bsData)
-                        if v.NoFall >= 1 and v.NoFall < 10 then
-                            animation_id = 1129
-                            if v.NoFall == 1 then
-                                v.NoFall = 2
-                            end
-                        end
                         players.Quats.w = quat_w
                         players.Quats.x = quat_x
                         players.Quats.y = quat_y
                         players.Quats.z = quat_z
-                        if animation_id == 1231 or animation_id == 1266 then
-                            if SHAcKvar.CJWalk ~= 2 and Movement.bUseCJWalk.v then SHAcKvar.CJWalk = 2 end
-                        elseif animation_id == 1224 or animation_id == 1257 then
-                            if SHAcKvar.CJWalk ~= 0 then SHAcKvar.CJWalk = 0 end
-                        end
                         local datas = vMy.ICData 
                         if vAmI.Driver and datas.VehicleID == 0 then
                             return false
@@ -6793,12 +6885,12 @@ local unload = false
                                         surfing_vehicle_id = 0
                                     end
                                 end
-                                --if v.NoFall >= 1 and v.NoFall < 10 then
-                                --    animation_id = 1129
-                                --    if v.NoFall == 1 then
-                                --        v.NoFall = 2
-                                --    end
-                                --else
+                                if v.NoFall >= 1 and v.NoFall < 10 then
+                                    animation_id = 1129
+                                    if v.NoFall == 1 then
+                                        v.NoFall = 2
+                                    end
+                                else
                                     if Troll.TrollWalk.v then
                                         local a = math.random(1,3)
                                         if a == 1 then
@@ -6825,7 +6917,7 @@ local unload = false
                                             end
                                         end
                                     end
-                                --end
+                                end
                                 bsWrap:Reset(bsData)
                                 bsWrap:Write8(bsData, 207) 
                                 bsWrap:Write16(bsData, lrKey) 
@@ -6894,7 +6986,7 @@ local unload = false
                     --
                     local vehicle
                     
-                    if Godmode.InvisibleCar == 1 and vMy.Vehicle == 1999 then
+                    if v.InvisibleCar == 1 and vMy.Vehicle == 1999 then
                         local speedX = velocity_x/math.random(2,4)
                         local speedY = velocity_y/math.random(2,4)
                         local speedZ = velocity_z/4
@@ -7111,7 +7203,7 @@ local unload = false
                         local aspect_ratio = bsWrap:Read8(bsData) 
 
                         IC = vMy.ICData
-                        if Godmode.InvisibleCar == 1 and vMy.Vehicle == 1999 then
+                        if v.InvisibleCar == 1 and vMy.Vehicle == 1999 then
                             bsWrap:Reset(bsData) 
                             bsWrap:Write8(bsData, 203)  
                             bsWrap:Write8(bsData, 4)  
@@ -7278,7 +7370,7 @@ local unload = false
                         local ActorTarget = bsWrap:Read16(bsData)
                     end
                     if rpcId == 26 then
-                        if Godmode.InvisibleCar == 1 and vMy.Vehicle == 1999 then
+                        if v.InvisibleCar == 1 and vMy.Vehicle == 1999 then
                             return false
                         end
                     end
@@ -7574,7 +7666,7 @@ local unload = false
                                     if not vAmI.Driver and not vAmI.Passenger then
                                         vehicleId = maths.getLowerIn(vehicles.dist)
                                     else
-                                        if Godmode.InvisibleCar == 1 and vMy.Vehicle == 1999 then
+                                        if v.InvisibleCar == 1 and vMy.Vehicle == 1999 then
                                             vehicleId = maths.getLowerIn(vehicles.dist)
                                         else
                                             vehicleId = vMy.Vehicle
@@ -7793,6 +7885,8 @@ local unload = false
         return true
     end
 --
+Utils:writeMemory(0xBAB318, 0, 1, true)
+Utils:writeMemory(0x53E94C, 0, 1, true)
 --! Mainloop
     local function Mainloop()
         if unload then
@@ -7984,7 +8078,7 @@ local unload = false
             v.shooting = 0
         end
     --Invisible Car
-        if Godmode.InvisibleCar == 1 then
+        if v.InvisibleCar == 1 then
             local bsData = BitStream()
             if vMy.Vehicle ~= 1999 then
                 if Cars:isCarStreamed(1999) then
@@ -7992,7 +8086,7 @@ local unload = false
                 end
                 SHAcKvar.InvCar = -1
                 SHAcKvar.InvTimer = 0
-                Godmode.InvisibleCar = 0;
+                v.InvisibleCar = 0;
             else
                 SHAcKvar.InvTimer = 0
             end
@@ -8959,7 +9053,7 @@ local unload = false
                                 end
                             else
                                 if SHAcKvar.Duration < Movement.Slide.SpeedDuration.v + 20 then
-                                    if Godmode.PlayerEnable.v == false or (Godmode.PlayerEnable.v and Godmode.PlayerCollision.v == false) then
+                                    if Godmode.Player.Enable.v == false or (Godmode.Player.Enable.v and Godmode.Player.Collision.v == false) then
                                         if v.NoFall == 0 then
                                             Utils:writeMemory(CPedST + 0x42, 0, 1, false)
                                             SHAcKvar.Speed = 0
@@ -9117,7 +9211,7 @@ local unload = false
                 if Movement.AntiStun.Chance == true and v.SniperProt ~= 1 then
                     Movement.AntiStun.SaveDamageHP = vMy.OFData.Health
                     Movement.AntiStun.SaveDamageAR = vMy.OFData.Armor
-                    if Godmode.PlayerEnable.v == false or Godmode.PlayerEnable.v and Godmode.PlayerBullet.v == false then
+                    if Godmode.Player.Enable.v == false or Godmode.Player.Enable.v and Godmode.Player.Bullet.v == false then
                         if Movement.AntiStun.On == 0 then    
                             memory.CPed.God = Utils:readMemory(CPedST+0x42, 1, false)
                             Utils:writeMemory(CPedST+0x42, memory.CPed.God+4, 1, false)
@@ -9125,7 +9219,7 @@ local unload = false
                         end
                     end
                 else
-                    if Godmode.PlayerEnable.v == false or Godmode.PlayerEnable.v and Godmode.PlayerBullet.v == false then
+                    if Godmode.Player.Enable.v == false or Godmode.Player.Enable.v and Godmode.Player.Bullet.v == false then
                         if Movement.AntiStun.On == 1 then
                             memory.CPed.God = Utils:readMemory(CPedST+0x42, 1, false)
                             Utils:writeMemory(CPedST+0x42, memory.CPed.God-4, 1, false)
@@ -9209,7 +9303,7 @@ local unload = false
                     local vMyBone = Players:getBonePosition(vMy.ID, 44)
                     if Utils:IsLineOfSightClear(CVector(vMyBone.fX, vMyBone.fY, vMyBone.fZ), CVector(vMyBone.fX, vMyBone.fY, vMyBone.fZ-2.5), true, true ,false, true, false, false, false) == false then
                         if Movement.NoFallNodamage.v then
-                            if Godmode.PlayerEnable.v == false or Godmode.PlayerEnable.v and Godmode.PlayerCollision.v == false then
+                            if Godmode.Player.Enable.v == false or Godmode.Player.Enable.v and Godmode.Player.Collision.v == false then
                                 Utils:writeMemory(CPedST+0x42, 16, 1, false)
                             end
                         end
@@ -9223,7 +9317,7 @@ local unload = false
                     v.NoFall = v.NoFall + 1
                     if v.NoFall > 25 then
                         if Movement.NoFallNodamage.v then
-                            if Godmode.PlayerEnable.v == false or Godmode.PlayerEnable.v and Godmode.PlayerCollision.v == false then
+                            if Godmode.Player.Enable.v == false or Godmode.Player.Enable.v and Godmode.Player.Collision.v == false then
                                 Utils:writeMemory(CPedST+0x42, 0, 1, false)
                             end
                         end
@@ -9540,25 +9634,39 @@ local unload = false
                     end
                 end
         --Godmode
+            --Hydra Thrust
+                if Vehicle.Hydra.Thrust.Enable.v then
+                    if vAmI.Driver then
+                        if Utils:IsKeyChecked(Vehicle.Hydra.Thrust.Key.v, 0) then
+                            v.HydraThrustState = not v.HydraThrustState
+                            v.ThrustWait = true
+                        end
+                        if v.ThrustWait == true then
+                            if(HydraThrustDelay.update(deltaTime)) then
+                                set.HydraThrust()
+                            end
+                        end
+                    end
+                end
             --Vehicle
-                if Godmode.VehicleEnable.v or Godmode.InvisibleCar == 1 then
+                if Godmode.Vehicle.Enable.v or v.InvisibleCar == 1 then
                     if vAmI.Driver then
                         if Vehicle ~= 0 then
                             local CVehicle = Utils:readMemory(0xB6F980, 4, false)
                             local value = 0
-                            if Godmode.VehicleCollision.v or Godmode.InvisibleCar == 1 then
+                            if Godmode.Vehicle.Collision.v or v.InvisibleCar == 1 then
                                 value = value + 16
                             end
-                            if Godmode.VehicleMelee.v or Godmode.InvisibleCar == 1 then
+                            if Godmode.Vehicle.Melee.v or v.InvisibleCar == 1 then
                                 value = value + 32
                             end
-                            if Godmode.VehicleBullet.v or Godmode.InvisibleCar == 1 then
+                            if Godmode.Vehicle.Bullet.v or v.InvisibleCar == 1 then
                                 value = value + 4
                             end
-                            if Godmode.VehicleFire.v or Godmode.InvisibleCar == 1 then
+                            if Godmode.Vehicle.Fire.v or v.InvisibleCar == 1 then
                                 value = value + 8
                             end
-                            if Godmode.VehicleExplosion.v or Godmode.InvisibleCar == 1 then
+                            if Godmode.Vehicle.Explosion.v or v.InvisibleCar == 1 then
                                 value = value + 128
                             end
                             --values = Utils:readMemory(CVehicle+0x42, 1, true)
@@ -9571,21 +9679,21 @@ local unload = false
                     end
                 end
             --Player
-                if Godmode.PlayerEnable.v or v.NoFall ~= 0 and Movement.NoFallNodamage.v then
+                if Godmode.Player.Enable.v or v.NoFall ~= 0 and Movement.NoFallNodamage.v then
                     local value = 0
-                    if Godmode.PlayerEnable.v and Godmode.PlayerCollision.v or v.NoFall ~= 0 and Movement.NoFallNodamage.v then
+                    if Godmode.Player.Enable.v and Godmode.Player.Collision.v or v.NoFall ~= 0 and Movement.NoFallNodamage.v then
                         value = value + 16
                     end
-                    if Godmode.PlayerEnable.v and Godmode.PlayerMelee.v then
+                    if Godmode.Player.Enable.v and Godmode.Player.Melee.v then
                         value = value + 32
                     end
-                    if Godmode.PlayerEnable.v and Godmode.PlayerBullet.v then
+                    if Godmode.Player.Enable.v and Godmode.Player.Bullet.v then
                         value = value + 4
                     end
-                    if Godmode.PlayerEnable.v and Godmode.PlayerFire.v then
+                    if Godmode.Player.Enable.v and Godmode.Player.Fire.v then
                         value = value + 8
                     end
-                    if Godmode.PlayerEnable.v and Godmode.PlayerExplosion.v then
+                    if Godmode.Player.Enable.v and Godmode.Player.Explosion.v then
                         value = value + 128
                     end
                     CPedST = Utils:readMemory(0xB6F5F0, 4, false)
@@ -10961,10 +11069,10 @@ local unload = false
             if Indicator.AntiStun.v and Movement.AntiStun.Enable.v and Panic.EveryThingExceptVisuals.v == false then
                 H2 = H2 + 18
             end
-            if Indicator.Godmode.v and Godmode.PlayerEnable.v and Panic.EveryThingExceptVisuals.v == false then
+            if Indicator.Godmode.v and Godmode.Player.Enable.v and Panic.EveryThingExceptVisuals.v == false then
                 H2 = H2 + 18
             end
-            if Indicator.Godmode.v and Godmode.VehicleEnable.v and Panic.EveryThingExceptVisuals.v == false then
+            if Indicator.Godmode.v and Godmode.Vehicle.Enable.v and Panic.EveryThingExceptVisuals.v == false then
                 H2 = H2 + 18
             end
             if Panic.EveryThingExceptVisuals.v == false then
@@ -10974,7 +11082,7 @@ local unload = false
                 Indicator.Slide.v and slide == 1 and Movement.Slide.Enable.v  or
                 Indicator.FakeLagPeek.v and v.shooting == 0 and SHAcKvar.DesyncTimer > 1 or
                 Indicator.SlideSpeed.v and slide == 1 and Movement.Slide.Enable.v or Indicator.AntiStun.v and Movement.AntiStun.Enable.v or 
-                Indicator.Godmode.v and Godmode.PlayerEnable.v or Indicator.Godmode.v and Godmode.VehicleEnable.v
+                Indicator.Godmode.v and Godmode.Player.Enable.v or Indicator.Godmode.v and Godmode.Vehicle.Enable.v
                 then
                     indicatorX = X
                     if X > Utils:getResolutionX() * 0.5 then
@@ -11167,60 +11275,60 @@ local unload = false
                 end
         --Godmode
                 if Indicator.Godmode.v and Panic.EveryThingExceptVisuals.v == false then
-                    if Godmode.PlayerEnable.v then
+                    if Godmode.Player.Enable.v then
                         Y = Y + 20
                         X = X + 15
                         Render:DrawText(("Godmode"),X,Y,0xFF00FF00)
-                        if Godmode.PlayerCollision.v then
+                        if Godmode.Player.Collision.v then
                             Render:DrawText(("I"),X+75,Y,0xFF00FF00)
                         else
                             Render:DrawText(("0"),X+75,Y,0xFFFF0000)
                         end
-                        if Godmode.PlayerMelee.v then
+                        if Godmode.Player.Melee.v then
                             Render:DrawText(("I"),X+85,Y,0xFF00FF00)
                         else
                             Render:DrawText(("0"),X+85,Y,0xFFFF0000)
                         end
-                        if Godmode.PlayerBullet.v then
+                        if Godmode.Player.Bullet.v then
                             Render:DrawText(("I"),X+95,Y,0xFF00FF00)
                         else
                             Render:DrawText(("0"),X+95,Y,0xFFFF0000)
                         end
-                        if Godmode.PlayerFire.v then
+                        if Godmode.Player.Fire.v then
                             Render:DrawText(("I"),X+105,Y,0xFF00FF00)
                         else
                             Render:DrawText(("0"),X+105,Y,0xFFFF0000)
                         end
-                        if Godmode.PlayerExplosion.v then
+                        if Godmode.Player.Explosion.v then
                             Render:DrawText(("I"),X+115,Y,0xFF00FF00)
                         else
                             Render:DrawText(("0"),X+115,Y,0xFFFF0000)
                         end
                     end
-                    if Godmode.VehicleEnable.v then
+                    if Godmode.Vehicle.Enable.v then
                         Y = Y + 15
                         Render:DrawText(("Godcar"),X,Y,0xFF00FF00)
-                        if Godmode.VehicleCollision.v then
+                        if Godmode.Vehicle.Collision.v then
                             Render:DrawText(("I"),X+75,Y,0xFF00FF00)
                         else
                             Render:DrawText(("0"),X+75,Y,0xFFFF0000)
                         end
-                        if Godmode.VehicleMelee.v then
+                        if Godmode.Vehicle.Melee.v then
                             Render:DrawText(("I"),X+85,Y,0xFF00FF00)
                         else
                             Render:DrawText(("0"),X+85,Y,0xFFFF0000)
                         end
-                        if Godmode.VehicleBullet.v then
+                        if Godmode.Vehicle.Bullet.v then
                             Render:DrawText(("I"),X+95,Y,0xFF00FF00)
                         else
                             Render:DrawText(("0"),X+95,Y,0xFFFF0000)
                         end
-                        if Godmode.VehicleFire.v then
+                        if Godmode.Vehicle.Fire.v then
                             Render:DrawText(("I"),X+105,Y,0xFF00FF00)
                         else
                             Render:DrawText(("0"),X+105,Y,0xFFFF0000)
                         end
-                        if Godmode.VehicleExplosion.v then
+                        if Godmode.Vehicle.Explosion.v then
                             Render:DrawText(("I"),X+115,Y,0xFF00FF00)
                         else
                             Render:DrawText(("0"),X+115,Y,0xFFFF0000)
@@ -11302,16 +11410,8 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor-10,SHAkMenu.menutransitor-2) 
                     if Menu:Button("| Aim Assist |") then
                         SHAkMenu.resetMenuTimerStaticReversed()
-                        if AimAssists == true then
-                            AimAssists = false
-                        else
-                            SHAkMenu.menuOpened = 0
-                            AimAssists = true
-                            SilentList = false
-                            DamagerList = false
-                            Rebuff = false
-                            DamageChangerList = false
-                        end
+                        AimAssists = not AimAssists
+                        SHAkMenu.menuOpened = 0
                     end
                     if AimAssists == true then
                         Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox("AimAssist", AimAssist.Enable)
@@ -11319,11 +11419,7 @@ local unload = false
                         if AimAssist.OnKey.v then Menu:SameLine(SHAkMenu.menutransitorstaticreversed+65,SHAkMenu.menutransitorstaticreversed+65) Menu:Hotkey("   ", AimAssist.Key, 200, 20) end
                         Menu:SameLine(SHAkMenu.menutransitorstaticreversed+45,SHAkMenu.menutransitorstaticreversed+45) 
                             if Menu:Button("(?)") then
-                                if reindirectbutton == true then
-                                    reindirectbutton = false
-                                else
-                                    reindirectbutton = true
-                                end
+                                reindirectbutton = not reindirectbutton
                             end
                             if reindirectbutton == true then
                                 Hotkeys = true; SHAkMenu.Menu.v = 0;
@@ -11342,16 +11438,8 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor+8,SHAkMenu.menutransitor+8) 
                 if Menu:Button("| Silent |") then
                     SHAkMenu.resetMenuTimerStaticReversed()
-                    if SilentList == true then
-                        SilentList = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        AimAssists = false
-                        SilentList = true
-                        DamagerList = false
-                        Rebuff = false
-                        DamageChangerList = false
-                    end
+                    SilentList = not SilentList
+                    SHAkMenu.menuOpened = 0
                 end
                 if SilentList == true then
                     get.FovfromConfig()
@@ -11361,11 +11449,7 @@ local unload = false
                     if Silent.OnKey.v then Menu:SameLine(SHAkMenu.menutransitorstaticreversed+65,SHAkMenu.menutransitorstaticreversed+65) Menu:Hotkey("     ", Silent.Key, 200, 20) end
                     Menu:SameLine(SHAkMenu.menutransitorstaticreversed+45,SHAkMenu.menutransitorstaticreversed+45) 
                         if Menu:Button("(?)") then
-                            if reindirectbutton == true then
-                                reindirectbutton = false
-                            else
-                                reindirectbutton = true
-                            end
+                            reindirectbutton = not reindirectbutton
                         end
                         if reindirectbutton == true then
                             Hotkeys = true; SHAkMenu.Menu.v = 0;
@@ -11810,16 +11894,8 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor-2,SHAkMenu.menutransitor-2) 
                 if Menu:Button("| Damager |") then
                     SHAkMenu.resetMenuTimerStaticReversed()
-                    if DamagerList == true then
-                        DamagerList = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        AimAssists = false
-                        SilentList = false
-                        DamagerList = true
-                        Rebuff = false
-                        DamageChangerList = false
-                    end
+                    DamagerList = not DamagerList
+                    SHAkMenu.menuOpened = 0
                 end
                 if DamagerList == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox("Damager", Damager.Enable)
@@ -11827,11 +11903,7 @@ local unload = false
                     if Damager.OnKey.v then Menu:SameLine(SHAkMenu.menutransitorstaticreversed+65,SHAkMenu.menutransitorstaticreversed+65) Menu:Hotkey("  ", Damager.Key, 200, 20) end
                     Menu:SameLine(SHAkMenu.menutransitorstaticreversed+45,SHAkMenu.menutransitorstaticreversed+45) 
                         if Menu:Button("(?)") then
-                            if reindirectbutton == true then
-                                reindirectbutton = false
-                            else
-                                reindirectbutton = true
-                            end
+                            reindirectbutton = not reindirectbutton
                         end
                         if reindirectbutton == true then
                             Hotkeys = true; SHAkMenu.Menu.v = 0;
@@ -11908,16 +11980,8 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor-25,SHAkMenu.menutransitor-25) 
                 if Menu:Button("| Damage Changer |") then
                     SHAkMenu.resetMenuTimerStaticReversed()
-                    if DamageChangerList == true then
-                        DamageChangerList = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        AimAssists = false
-                        SilentList = false
-                        DamageChangerList = true
-                        Rebuff = false
-                        DamagerList = false
-                    end
+                    DamageChangerList = not DamageChangerList
+                    SHAkMenu.menuOpened = 0
                 end
                 if DamageChangerList == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox("Damage Changer", DamageChanger.Enable)
@@ -11925,11 +11989,7 @@ local unload = false
                     if DamageChanger.OnKey.v then Menu:SameLine(SHAkMenu.menutransitorstaticreversed+65,SHAkMenu.menutransitorstaticreversed+65) Menu:Hotkey("  ", DamageChanger.Key, 200, 20) end
                     Menu:SameLine(SHAkMenu.menutransitorstaticreversed+45,SHAkMenu.menutransitorstaticreversed+45) 
                     if Menu:Button("(?)") then
-                        if reindirectbutton == true then
-                            reindirectbutton = false
-                        else
-                            reindirectbutton = true
-                        end
+                        reindirectbutton = not reindirectbutton
                     end
                     if reindirectbutton == true then
                         Hotkeys = true; SHAkMenu.Menu.v = 0;
@@ -11946,11 +12006,7 @@ local unload = false
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Snipers", DamageChanger.Snipers.Enable)
                         Menu:SameLine(SHAkMenu.menutransitorstaticreversed+65,SHAkMenu.menutransitorstaticreversed+65) Menu:SliderFloat("Damage##55",DamageChanger.Snipers.DMG, 0, 2000)
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) if Menu:Button("| Get Current Weapon Max DMG |") then
-                        if WeaponDAMAGE == true then
-                            WeaponDAMAGE = false
-                        else
-                            WeaponDAMAGE = true
-                        end
+                        WeaponDAMAGE = not WeaponDAMAGE
                     end
                     if WeaponDAMAGE == true  then
                         local WeaponID = vMy.Weapon
@@ -11975,16 +12031,8 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor-13,SHAkMenu.menutransitor-13) 
                 if Menu:Button("| Bullet Rebuff |") then
                     SHAkMenu.resetMenuTimerStaticReversed()
-                    if Rebuff == true then
-                        Rebuff = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        AimAssists = false
-                        SilentList = false
-                        DamagerList = false
-                        Rebuff = true
-                        DamageChangerList = false
-                    end
+                    Rebuff = not Rebuff
+                    SHAkMenu.menuOpened = 0
                 end
                 if Rebuff == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox("Rebuff", BulletRebuff.Enable)
@@ -11995,11 +12043,7 @@ local unload = false
                 end
                 Menu:Separator()
         else
-            SilentList = false
-            DamagerList = false
-            Rebuff = false
-            AimAssists = false
-            DamageChangerList = false
+            SilentList, DamagerList, Rebuff, AimAssists, DamageChangerList = false
         end
     --Movement
         if SHAkMenu.Menu.v == 2 then
@@ -12008,17 +12052,8 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor+5,SHAkMenu.menutransitor+6) 
                 if Menu:Button("| Player |") then
                     SHAkMenu.resetMenuTimerStaticReversed()
-                    if Others == true then
-                        Others = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        Others = true
-                        JumpList = false
-                        AntiStunList = false
-                        FakeLagList = false
-                        SlideList = false
-                        MacrosList = false
-                    end
+                    Others = not Others
+                    SHAkMenu.menuOpened = 0
                 end
                 if Others == true then
                     if m_offsets.m_samp_info[v.SampVer] ~= 0 then
@@ -12035,11 +12070,7 @@ local unload = false
                     end
                     Menu:SameLine(SHAkMenu.menutransitorstaticreversed+55,SHAkMenu.menutransitorstaticreversed+55) 
                     if Menu:Button("(?)") then
-                        if InfoButton == true then
-                            InfoButton = false
-                        else
-                            InfoButton = true
-                        end
+                        InfoButton = not InfoButton
                     end
                     if InfoButton == true then
                         Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) 
@@ -12063,17 +12094,8 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor+5,SHAkMenu.menutransitor+2) 
                 if Menu:Button("| Macros |") then
                     SHAkMenu.resetMenuTimerStaticReversed()
-                    if MacrosList == true then
-                        MacrosList = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        AntiStunList = false
-                        FakeLagList = false
-                        MacrosList = true
-                        SlideList = false
-                        JumpList = false
-                        Others = false
-                    end
+                    MacrosList = not MacrosList
+                    SHAkMenu.menuOpened = 0
                 end
                 if MacrosList == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) 
@@ -12082,11 +12104,7 @@ local unload = false
                     if Movement.MacroRun.OnKey.v then Menu:SameLine(SHAkMenu.menutransitorstaticreversed+65,SHAkMenu.menutransitorstaticreversed+65) Menu:Hotkey("     ", Movement.MacroRun.Key, 200, 20) end
                     Menu:SameLine(SHAkMenu.menutransitorstaticreversed+45,SHAkMenu.menutransitorstaticreversed+45) 
                     if Menu:Button("(?)") then
-                        if reindirectbutton == true then
-                            reindirectbutton = false
-                        else
-                            reindirectbutton = true
-                        end
+                        reindirectbutton = not reindirectbutton
                     end
                     if reindirectbutton == true then
                         Hotkeys = true; SHAkMenu.Menu.v = 0;
@@ -12119,17 +12137,8 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor+12,SHAkMenu.menutransitor+9) 
                 if Menu:Button("| Slide |") then
                     SHAkMenu.resetMenuTimerStaticReversed()
-                    if SlideList == true then
-                        SlideList = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        AntiStunList = false
-                        FakeLagList = false
-                        SlideList = true
-                        MacrosList = false
-                        JumpList = false
-                        Others = false
-                    end
+                    SlideList = not SlideList
+                    SHAkMenu.menuOpened = 0
                 end
                 if SlideList == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox("Slide-Master", Movement.Slide.Enable)
@@ -12137,11 +12146,7 @@ local unload = false
                     if Movement.Slide.OnKey.v then Menu:SameLine(SHAkMenu.menutransitorstaticreversed+65,SHAkMenu.menutransitorstaticreversed+65) Menu:Hotkey("       ", Movement.Slide.Key, 200, 20) end
                     Menu:SameLine(SHAkMenu.menutransitorstaticreversed+45,SHAkMenu.menutransitorstaticreversed+45) 
                     if Menu:Button("(?)") then
-                        if reindirectbutton == true then
-                            reindirectbutton = false
-                        else
-                            reindirectbutton = true
-                        end
+                        reindirectbutton = not reindirectbutton
                     end
                     if reindirectbutton == true then
                         Hotkeys = true; SHAkMenu.Menu.v = 0;
@@ -12153,11 +12158,7 @@ local unload = false
                     if Movement.Slide.PerWeap.v then
                         Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+10,SHAkMenu.menutransitorstaticreversed+10)
                         if Menu:Button("| Weapon List |") then
-                            if WeaponList == true then
-                                WeaponList = false
-                            else
-                                WeaponList = true
-                            end
+                            WeaponList = not WeaponList
                         end
                         if WeaponList == true then
                             Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Silenced-Pistol",Movement.Slide.SilencedPistol)
@@ -12179,11 +12180,7 @@ local unload = false
                         Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5)
                         if Movement.Slide.PerWeap.v then
                             if Menu:Button("| One Handed Gun |") then
-                                if handedgun == true then
-                                    handedgun = false
-                                else
-                                    handedgun = true
-                                end
+                                handedgun = not handedgun
                             end
                         end
                         Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+10,SHAkMenu.menutransitorstaticreversed+10) Menu:CheckBox2("Prioritize Fist ##1", Movement.Slide.PrioritizeFist1handedgun)
@@ -12198,11 +12195,7 @@ local unload = false
                     if Movement.Slide.PerWeap.v then
                         Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5)
                         if Menu:Button("| Two Handed Gun |") then
-                            if handedsgun == true then
-                                handedsgun = false
-                            else
-                                handedsgun = true
-                            end
+                            handedsgun = not handedsgun
                         end 
                         Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+10,SHAkMenu.menutransitorstaticreversed+10) Menu:CheckBox2("Prioritize Fist ##2", Movement.Slide.PrioritizeFist2handedgun)
                         if handedsgun == true then
@@ -12231,17 +12224,8 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor,SHAkMenu.menutransitor) 
                 if Menu:Button("| FakeLag |") then
                     SHAkMenu.resetMenuTimerStaticReversed()
-                    if FakeLagList == true then
-                        FakeLagList = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        AntiStunList = false
-                        FakeLagList = true
-                        SlideList = false
-                        MacrosList = false
-                        JumpList = false
-                        Others = false
-                    end
+                    FakeLagList = not FakeLagList
+                    SHAkMenu.menuOpened = 0
                 end
                 if FakeLagList == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox("FakeLag On Peek", Movement.FakeLagPeek.Enable)
@@ -12259,17 +12243,8 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor,SHAkMenu.menutransitor) 
                 if Menu:Button("| AntiStun |") then
                     SHAkMenu.resetMenuTimerStaticReversed()
-                    if AntiStunList == true then
-                        AntiStunList = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        AntiStunList = true
-                        FakeLagList = false
-                        SlideList = false
-                        MacrosList = false
-                        JumpList = false
-                        Others = false
-                    end
+                    AntiStunList = not AntiStunList
+                    SHAkMenu.menuOpened = 0
                 end
                 if AntiStunList == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox("Smart AntiStun", Movement.AntiStun.Enable)
@@ -12290,17 +12265,8 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor+9,SHAkMenu.menutransitor+7) 
                 if Menu:Button("| Jump |") then
                     SHAkMenu.resetMenuTimerStaticReversed()
-                    if JumpList == true then
-                        JumpList = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        JumpList = true
-                        AntiStunList = false
-                        FakeLagList = false
-                        SlideList = false
-                        MacrosList = false
-                        Others = false
-                    end
+                    JumpList = not JumpList
+                    SHAkMenu.menuOpened = 0
                 end
                 if JumpList == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox("Jump", Doublejump.Enable)
@@ -12310,12 +12276,7 @@ local unload = false
                 end
                 Menu:Separator()
         else
-            AntiStunList = false
-            FakeLagList = false
-            SlideList = false
-            MacrosList = false
-            JumpList = false
-            Others = false
+            AntiStunList, FakeLagList, SlideList, MacrosList, JumpList, Others = false
         end
     --Misc
         if SHAkMenu.Menu.v == 3 then
@@ -12324,15 +12285,8 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor+3,SHAkMenu.menutransitor+3) 
                 if Menu:Button("| Vehicle |") then
                     SHAkMenu.resetMenuTimerStaticReversed()
-                    if VehicleList == true then
-                        VehicleList = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        TeleportList = false
-                        GodmodeList = false
-                        VehicleList = true
-                        ExtraList = false
-                    end
+                    VehicleList = not VehicleList
+                    SHAkMenu.menuOpened = 0
                 end
                 if VehicleList == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox2("Drive No License", Vehicle.DriveNoLicense)
@@ -12348,6 +12302,15 @@ local unload = false
                         bsWrap:Write32(bsData, vehicleid)
                         bsWrap:Write32(bsData, 1087)
                         EmulRPC(96,bsData)
+                    end
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox2("Hydra Thrust", Vehicle.Hydra.Thrust.Enable)
+                    Menu:SameLine(SHAkMenu.menutransitorstaticreversed+65,SHAkMenu.menutransitorstaticreversed+65) Menu:Hotkey("##2323 ", Vehicle.Hydra.Thrust.Key, 200, 20)
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15)Menu:SliderInt("Speed##22", Vehicle.Hydra.Thrust.Speed, 1, 1000)
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) if Menu:CheckBox2("Hydra Fast Lock On", Vehicle.Hydra.FastLock.Lock) then
+                        set.HydraLockOnDelay(Vehicle.Hydra.FastLock.Lock.v, Vehicle.Hydra.FastLock.Visual.v)
+                    end
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) if Menu:CheckBox2("Hydra Fast Lock On Visual", Vehicle.Hydra.FastLock.Visual) then
+                        set.HydraLockOnDelay(Vehicle.Hydra.FastLock.Lock.v, Vehicle.Hydra.FastLock.Visual.v)
                     end
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox2("Anti CarJack", Vehicle.AntiCarJack)
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox2("Anti Flip", Vehicle.AntiCarFlip)
@@ -12430,55 +12393,41 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor-4,SHAkMenu.menutransitor-4) 
                 if Menu:Button("| Godmode |") then
                     SHAkMenu.resetMenuTimerStaticReversed()
-                    if GodmodeList == true then
-                        GodmodeList = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        TeleportList = false
-                        GodmodeList = true
-                        VehicleList = false
-                        ExtraList = false
-                    end
+                    GodmodeList = not GodmodeList
+                    SHAkMenu.menuOpened = 0
                 end
                 if GodmodeList == true then
-                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) if Menu:CheckBox("Godmode", Godmode.PlayerEnable) then
-                        if Godmode.PlayerEnable.v == false then
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) if Menu:CheckBox("Godmode", Godmode.Player.Enable) then
+                        if Godmode.Player.Enable.v == false then
                             local mem = Utils:readMemory(0xB6F5F0, 4, false)
                             Utils:writeMemory(mem+0x42, 0, 1, false)
                         end
                     end
-                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Collision Proof", Godmode.PlayerCollision) 
-                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Melee Proof", Godmode.PlayerMelee) 
-                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Bullet Proof", Godmode.PlayerBullet) 
-                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Fire Proof", Godmode.PlayerFire) 
-                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Explosion Proof", Godmode.PlayerExplosion) 
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Collision Proof", Godmode.Player.Collision) 
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Melee Proof", Godmode.Player.Melee) 
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Bullet Proof", Godmode.Player.Bullet) 
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Fire Proof", Godmode.Player.Fire) 
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Explosion Proof", Godmode.Player.Explosion) 
                     Menu:Separator()
-                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) if Menu:CheckBox("GodCar", Godmode.VehicleEnable) then
-                        if Godmode.VehicleEnable.v == false then
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) if Menu:CheckBox("GodCar", Godmode.Vehicle.Enable) then
+                        if Godmode.Vehicle.Enable.v == false then
                             local mem = Utils:readMemory(0xB6F980, 4, false)
                             Utils:writeMemory(mem+0x42, 0, 1, false)
                         end
                     end
-                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Collision Proof##2", Godmode.VehicleCollision) 
-                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Melee Proof##2", Godmode.VehicleMelee) 
-                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Bullet Proof##2", Godmode.VehicleBullet) 
-                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Fire Proof##2", Godmode.VehicleFire) 
-                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Explosion Proof##2", Godmode.VehicleExplosion) 
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Collision Proof##2", Godmode.Vehicle.Collision) 
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Melee Proof##2", Godmode.Vehicle.Melee) 
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Bullet Proof##2", Godmode.Vehicle.Bullet) 
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Fire Proof##2", Godmode.Vehicle.Fire) 
+                    Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Explosion Proof##2", Godmode.Vehicle.Explosion) 
                 end   
             --Teleport
                 Menu:Separator()
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor,SHAkMenu.menutransitor) 
                 if Menu:Button("| Teleport |") then
                     SHAkMenu.resetMenuTimerStaticReversed()
-                    if TeleportList == true then
-                        TeleportList = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        TeleportList = true
-                        GodmodeList = false
-                        VehicleList = false
-                        ExtraList = false
-                    end
+                    TeleportList = not TeleportList
+                    SHAkMenu.menuOpened = 0
                 end
                 if TeleportList == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox("Teleport", Teleport.Enable)
@@ -12518,11 +12467,7 @@ local unload = false
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox("Attach To Vehicle", Teleport.AttachToVehicle)
                     Menu:SameLine(SHAkMenu.menutransitor+11,SHAkMenu.menutransitor+11) 
                     if Menu:Button("(?)") then
-                        if AttachToVehiclemenu == true then
-                            AttachToVehiclemenu = false
-                        else
-                            AttachToVehiclemenu = true
-                        end
+                        AttachToVehiclemenu = not AttachToVehiclemenu
                     end
                     if AttachToVehiclemenu == true then
                         Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) 
@@ -12564,15 +12509,8 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor+10,SHAkMenu.menutransitor+8) 
                 if Menu:Button("| Extra |") then
                     SHAkMenu.resetMenuTimerStaticReversed()
-                    if ExtraList == true then
-                        ExtraList = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        TeleportList = false
-                        GodmodeList = false
-                        VehicleList = false
-                        ExtraList = true
-                    end
+                    ExtraList = not ExtraList
+                    SHAkMenu.menuOpened = 0
                 end
                 if ExtraList == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox2("Hide Temp Object", Extra.RemoveObjectTemp.Enable)
@@ -12585,12 +12523,7 @@ local unload = false
                         if Extra.fuckKeyStrokes.Mode.v ~= 2 then
                                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+10,SHAkMenu.menutransitorstaticreversed+15)
                                 if Menu:Button("| Key List |") then
-                                    if KeyList == true then
-                                        KeyList = false
-                                    else
-                                        KeyList = true
-                                        WeaponList = false
-                                    end
+                                    KeyList = not KeyList
                                 end
                                 if KeyList == true then
                                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+15,SHAkMenu.menutransitorstaticreversed+15) Menu:CheckBox2("Fire",Extra.fuckKeyStrokes.Key.fire)
@@ -12608,12 +12541,7 @@ local unload = false
                     Menu:Separator()
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+10,SHAkMenu.menutransitorstaticreversed+15)
                     if Menu:Button("| Auto Weapon Deletion |") then
-                        if WeaponList == true then
-                            WeaponList = false
-                        else
-                            WeaponList = true
-                            KeyList = false
-                        end
+                        WeaponList = not WeaponList
                     end
                     if WeaponList == true then
                         Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:Combo("Slot",SHAcKvar.WeaponSlotCombo,"All Slots\0Slot 0\0Slot 1\0Slot 2\0Slot 3\0Slot 4\0Slot 5\0Slot 6\0Slot 7\0Slot 8\0Slot 9\0Slot 10\0Slot 11\0Slot 12\0\0",25) 
@@ -12706,11 +12634,7 @@ local unload = false
                         Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:SliderInt("Delay##2", Extra.SendCMD.Delay, 0, 20000)
                         Menu:SameLine(SHAkMenu.menutransitorstaticreversed+75,SHAkMenu.menutransitorstaticreversed+75) 
                         if Menu:Button("(?)##192") then
-                            if InfoButton2 == true then
-                                InfoButton2 = false
-                            else
-                                InfoButton2 = true
-                            end
+                            InfoButton2 = not InfoButton2
                         end
                         if InfoButton2 == true then
                             Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) 
@@ -12773,12 +12697,7 @@ local unload = false
                         if Extra.ExtraWS.OnKey.v then Menu:SameLine(SHAkMenu.menutransitorstaticreversed+65,SHAkMenu.menutransitorstaticreversed+65) Menu:Hotkey("        ", Extra.ExtraWS.Key, 200, 20) end
                         Menu:SameLine(SHAkMenu.menutransitorstaticreversed+45,SHAkMenu.menutransitorstaticreversed+45) 
                         if Menu:Button("(?)") then
-                            if reindirectbutton == true then
-                                reindirectbutton = false
-                            else
-                                reindirectbutton = true
-                                InfoButton2 = false
-                            end
+                            reindirectbutton = not reindirectbutton
                         end
                         if reindirectbutton == true then
                             Hotkeys = true; SHAkMenu.Menu.v = 0;
@@ -12881,12 +12800,7 @@ local unload = false
                 end
                 Menu:Separator()
         else
-            AttachToVehiclemenu = false
-            TeleportList = false
-            GodmodeList = false
-            VehicleList = false
-            ExtraList = false
-            InfoButton2 = false 
+            AttachToVehiclemenu, TeleportList, GodmodeList, VehicleList, ExtraList, InfoButton2 = false
         end
     --Visuals
         if SHAkMenu.Menu.v == 4 then
@@ -12895,16 +12809,8 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor+6,SHAkMenu.menutransitor+7) 
                 if Menu:Button("| Filters |") then
                     SHAkMenu.resetMenuTimerStaticReversed()
-                    if FiltersList == true then
-                        FiltersList = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        FiltersList = true
-                        IndicatorsList = false
-                        WallHackList = false
-                        StreamList = false
-                        RadarList = false
-                    end
+                    FiltersList = not FiltersList
+                    SHAkMenu.menuOpened = 0
                 end
                 if FiltersList == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox("Filters", Filters.Enable)
@@ -12930,16 +12836,8 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor-4,SHAkMenu.menutransitor-4) 
                 if Menu:Button("| Indicators |") then
                     SHAkMenu.resetMenuTimerStaticReversed()
-                    if IndicatorsList == true then
-                        IndicatorsList = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        FiltersList = false
-                        IndicatorsList = true
-                        WallHackList = false
-                        StreamList = false
-                        RadarList = false
-                    end
+                    IndicatorsList = not IndicatorsList
+                    SHAkMenu.menuOpened = 0
                 end
                 if IndicatorsList == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox("Indicators", Indicator.Enable)
@@ -12967,16 +12865,8 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor-15,SHAkMenu.menutransitor-15) 
                 if Menu:Button("| Lag WallHack |") then
                     SHAkMenu.resetMenuTimerStaticReversed()
-                    if WallHackList == true then
-                        WallHackList = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        FiltersList = false
-                        IndicatorsList = false
-                        WallHackList = true
-                        StreamList = false
-                        RadarList = false
-                    end
+                    WallHackList = not WallHackList
+                    SHAkMenu.menuOpened = 0
                 end
                 if WallHackList == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed)Menu:CheckBox("Lagshot Wallhack", WallHack.Enable)
@@ -12989,16 +12879,8 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor+3,SHAkMenu.menutransitor+3) 
                 if Menu:Button("| Stream |") then
                     SHAkMenu.resetMenuTimerStaticReversed()
-                    if StreamList == true then
-                        StreamList = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        FiltersList = false
-                        IndicatorsList = false
-                        WallHackList = false
-                        StreamList = true
-                        RadarList = false
-                    end
+                    StreamList = not StreamList
+                    SHAkMenu.menuOpened = 0
                 end
                 if StreamList == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed)Menu:CheckBox("Stream Wallhack", StreamWall.Enable)
@@ -13015,16 +12897,8 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor+6,SHAkMenu.menutransitor+7) 
                 if Menu:Button("| Radar |") then
                     SHAkMenu.resetMenuTimerStaticReversed()
-                    if RadarList == true then
-                        RadarList = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        FiltersList = false
-                        IndicatorsList = false
-                        WallHackList = false
-                        StreamList = false
-                        RadarList = true
-                    end
+                    RadarList = not RadarList
+                    SHAkMenu.menuOpened = 0
                 end
                 if RadarList == true then
                     if m_offsets.m_samp_info[v.SampVer] ~= 0 then
@@ -13060,11 +12934,7 @@ local unload = false
                 end
                 Menu:Separator()
         else
-            FiltersList = false
-            IndicatorsList = false
-            WallHackList = false
-            StreamList = false
-            RadarList = false
+            FiltersList, IndicatorsList, WallHackList, StreamList, RadarList = false
         end
     --Troll
         if SHAkMenu.Menu.v == 5 then
@@ -13072,30 +12942,14 @@ local unload = false
             Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor+11,SHAkMenu.menutransitor+11) 
             if Menu:Button("| Troll |") then
                 SHAkMenu.resetMenuTimerStaticReversed()
-                if TrollList == true then
-                    TrollList = false
-                else
-                    SHAkMenu.menuOpened = 0
-                    TrollList = true
-                end
+                TrollList = not TrollList
+                SHAkMenu.menuOpened = 0
             end
             if TrollList == true then
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox("Throw Driver", Troll.RainCars)
                 Menu:SameLine(SHAkMenu.menutransitor+11,SHAkMenu.menutransitor+11) 
                 if Menu:Button("(?)") then
-                    if ThrowDrivermenu == true then
-                        ThrowDrivermenu = false
-                    else
-                        ThrowDrivermenu = true
-                        reindirectbutton = false
-                        RVankamenu = false
-                        FakePoSHAkMenu = false
-                        FuckSyncmenu = false
-                        TrollWalkmenu = false
-                        VehicleSlappermenu = false
-                        VehicleTrollmenu = false
-                        RVankaSpeed = false
-                    end
+                    ThrowDrivermenu = not ThrowDrivermenu
                 end
                 if ThrowDrivermenu == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) 
@@ -13105,19 +12959,7 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox("Fake Pos", Troll.FakePos.Enable)
                 Menu:SameLine(SHAkMenu.menutransitor+11,SHAkMenu.menutransitor+11) 
                 if Menu:Button("(?)##1") then
-                    if FakePoSHAkMenu == true then
-                        FakePoSHAkMenu = false
-                    else
-                        FakePoSHAkMenu = true
-                        reindirectbutton = false
-                        RVankamenu = false
-                        ThrowDrivermenu = false
-                        FuckSyncmenu = false
-                        TrollWalkmenu = false
-                        VehicleSlappermenu = false
-                        VehicleTrollmenu = false
-                        RVankaSpeed = false
-                    end
+                    FakePoSHAkMenu = not FakePoSHAkMenu
                 end
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox("On Foot", Troll.FakePos.OnFoot)
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox("In Car", Troll.FakePos.InCar)
@@ -13136,19 +12978,7 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox("Quaternion Fucker",Troll.FuckSync)
                 Menu:SameLine(SHAkMenu.menutransitor+11,SHAkMenu.menutransitor+11) 
                 if Menu:Button("(?)##2") then
-                    if FuckSyncmenu == true then
-                        FuckSyncmenu = false
-                    else
-                        FuckSyncmenu = true
-                        reindirectbutton = false
-                        RVankamenu = false
-                        ThrowDrivermenu = false
-                        FakePoSHAkMenu = false
-                        TrollWalkmenu = false
-                        VehicleSlappermenu = false
-                        VehicleTrollmenu = false
-                        RVankaSpeed = false
-                    end
+                    FuckSyncmenu = not FuckSyncmenu
                 end
                 if FuckSyncmenu == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) 
@@ -13158,19 +12988,7 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox("Parachute Walk",Troll.TrollWalk)
                 Menu:SameLine(SHAkMenu.menutransitor+11,SHAkMenu.menutransitor+11) 
                 if Menu:Button("(?)##3") then
-                    if TrollWalkmenu == true then
-                        TrollWalkmenu = false
-                    else
-                        TrollWalkmenu = true
-                        reindirectbutton = false
-                        RVankamenu = false
-                        ThrowDrivermenu = false
-                        FakePoSHAkMenu = false
-                        FuckSyncmenu = false
-                        VehicleSlappermenu = false
-                        VehicleTrollmenu = false
-                        RVankaSpeed = false
-                    end
+                    TrollWalkmenu = not TrollWalkmenu
                 end
                 if TrollWalkmenu == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) 
@@ -13180,19 +12998,7 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox("Vehicle Slapper",Troll.Slapper.Enable)
                 Menu:SameLine(SHAkMenu.menutransitor+11,SHAkMenu.menutransitor+11) 
                 if Menu:Button("(?)##4") then
-                    if VehicleSlappermenu == true then
-                        VehicleSlappermenu = false
-                    else
-                        VehicleSlappermenu = true
-                        reindirectbutton = false
-                        RVankamenu = false
-                        ThrowDrivermenu = false
-                        FakePoSHAkMenu = false
-                        FuckSyncmenu = false
-                        TrollWalkmenu = false
-                        VehicleTrollmenu = false
-                        RVankaSpeed = false
-                    end
+                    VehicleSlappermenu = not VehicleSlappermenu
                 end
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("OnKey##1", Troll.Slapper.OnKey)
                 if Troll.Slapper.OnKey.v then Menu:SameLine(SHAkMenu.menutransitorstaticreversed+65,SHAkMenu.menutransitorstaticreversed+65) Menu:Hotkey("  ", Troll.Slapper.Key, 200, 20) end
@@ -13204,19 +13010,7 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox("Fuck Unoccupied",Troll.VehicleTroll)
                 Menu:SameLine(SHAkMenu.menutransitor+11,SHAkMenu.menutransitor+11) 
                 if Menu:Button("(?)##5") then
-                    if VehicleTrollmenu == true then
-                        VehicleTrollmenu = false
-                    else
-                        VehicleTrollmenu = true
-                        reindirectbutton = false
-                        RVankamenu = false
-                        ThrowDrivermenu = false
-                        FakePoSHAkMenu = false
-                        FuckSyncmenu = false
-                        TrollWalkmenu = false
-                        VehicleSlappermenu = false
-                        RVankaSpeed = false
-                    end
+                    VehicleTrollmenu = not VehicleTrollmenu
                 end
                 if Troll.VehicleTroll.v then
                     Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:Combo("Type",Troll.VehicleTrollType,"OnSend\0Normal\0Hardcore\0\0",6)
@@ -13229,37 +13023,13 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox("RVanka",Troll.RVanka.Enable)
                 Menu:SameLine(SHAkMenu.menutransitor+11,SHAkMenu.menutransitor+11) 
                 if Menu:Button("(?)##6") then
-                    if RVankamenu == true then
-                        RVankamenu = false
-                    else
-                        RVankamenu = true
-                        ThrowDrivermenu = false
-                        FakePoSHAkMenu = false
-                        FuckSyncmenu = false
-                        TrollWalkmenu = false
-                        VehicleSlappermenu = false
-                        VehicleTrollmenu = false
-                        reindirectbutton = false
-                        RVankaSpeed = false
-                    end
+                    RVankamenu = not RVankamenu
                 end
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("OnKey##2", Troll.RVanka.OnKey)
                 if Troll.RVanka.OnKey.v then Menu:SameLine(SHAkMenu.menutransitorstaticreversed+65,SHAkMenu.menutransitorstaticreversed+65) Menu:Hotkey("    ", Troll.RVanka.Key, 200, 20) end
                 Menu:SameLine(SHAkMenu.menutransitorstaticreversed+45,SHAkMenu.menutransitorstaticreversed+45) 
                 if Menu:Button("(?)##231") then
-                    if reindirectbutton == true then
-                        reindirectbutton = false
-                    else
-                        reindirectbutton = true
-                        RVankamenu = false
-                        ThrowDrivermenu = false
-                        FakePoSHAkMenu = false
-                        FuckSyncmenu = false
-                        TrollWalkmenu = false
-                        VehicleSlappermenu = false
-                        VehicleTrollmenu = false
-                        RVankaSpeed = false
-                    end
+                    reindirectbutton = not reindirectbutton
                 end
                 if reindirectbutton == true then
                     Hotkeys = true; SHAkMenu.Menu.v = 0;
@@ -13268,19 +13038,7 @@ local unload = false
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+10, SHAkMenu.menutransitorstaticreversed+10) Menu:SliderFloat("Speed##9555",Troll.RVanka.Speed, 0.0, 10)
                 Menu:SameLine(SHAkMenu.menutransitor+11,SHAkMenu.menutransitor+11) 
                 if Menu:Button("(?)##565") then
-                    if RVankaSpeed == true then
-                        RVankaSpeed = false
-                    else
-                        RVankaSpeed = true
-                        reindirectbutton = false
-                        RVankamenu = false
-                        ThrowDrivermenu = false
-                        FakePoSHAkMenu = false
-                        FuckSyncmenu = false
-                        TrollWalkmenu = false
-                        VehicleSlappermenu = false
-                        VehicleTrollmenu = false
-                    end
+                    RVankaSpeed = not RVankaSpeed
                 end
                 if RVankaSpeed == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) 
@@ -13300,29 +13058,16 @@ local unload = false
             end
             Menu:Separator()
         else
-            ThrowDrivermenu = false
-            FakePoSHAkMenu = false
-            FuckSyncmenu = false
-            TrollWalkmenu = false
-            VehicleSlappermenu = false
-            RVankamenu = false
-            VehicleTrollmenu = false
-            TrollList = false
+            ThrowDrivermenu, FakePoSHAkMenu, FuckSyncmenu, TrollWalkmenu, VehicleSlappermenu, RVankamenu, VehicleTrollmenu, TrollList = false
         end
     --NOPs
         if SHAkMenu.Menu.v == 6 then
             SHAkMenu.resetMenuTimer(SHAkMenu.Menu.v)
             Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor,SHAkMenu.menutransitor) 
             if Menu:Button("| Receive |") then
-                
                 SHAkMenu.resetMenuTimerStaticReversed()
-                if Outgoing == true then
-                    Outgoing = false
-                else
-                    SHAkMenu.menuOpened = 0
-                    Incoming = false
-                    Outgoing = true
-                end
+                Outgoing = not Outgoing
+                SHAkMenu.menuOpened = 0
             end
             if Outgoing == true then
                 for i = 0, #RPC do
@@ -13339,12 +13084,7 @@ local unload = false
             Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor+8,SHAkMenu.menutransitor+7) 
             if Menu:Button("| Send |") then
                 SHAkMenu.resetMenuTimerStaticReversed()
-                if Incoming == true then
-                    Incoming = false
-                else
-                    Outgoing = false
-                    Incoming = true
-                end
+                Incoming = not Incoming
             end
             if Incoming == true then
                 for i = 0, #RPC do
@@ -13359,8 +13099,7 @@ local unload = false
             end
             Menu:Separator()
         else
-            Outgoing = false
-            Incoming = false
+            Outgoing, Incoming = false
         end
     --Config
         if SHAkMenu.Menu.v == 0 then
@@ -13544,13 +13283,8 @@ local unload = false
             --Hotkeys
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor-2,SHAkMenu.menutransitor-3) 
                 if Menu:Button("  | Hotkeys |") then
-                    if Hotkeys == true then
-                        Hotkeys = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        CommandsList = false
-                        Hotkeys = true
-                    end
+                    Hotkeys = not Hotkeys
+                    SHAkMenu.menuOpened = 0
                 end
                 if Hotkeys == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:Text("Panic Visuals") 
@@ -13626,13 +13360,8 @@ local unload = false
             --Commands
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor-12,SHAkMenu.menutransitor-12) 
                 if Menu:Button("  | Commands |") then
-                    if CommandsList == true then
-                        CommandsList = false
-                    else
-                        SHAkMenu.menuOpened = 0
-                        Hotkeys = false
-                        CommandsList = true
-                    end
+                    CommandsList = not CommandsList
+                    SHAkMenu.menuOpened = 0
                 end
                 if CommandsList == true then
                     Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed+5,SHAkMenu.menutransitorstaticreversed+5) Menu:CheckBox2("Add Filter ", Commands.Filters)
@@ -13683,11 +13412,7 @@ local unload = false
             --Credits
                 Menu:Text("") Menu:SameLine(SHAkMenu.menutransitor,SHAkMenu.menutransitor) 
                 if Menu:Button("  | Credits |") then
-                    if Credits == true then
-                        Credits = false
-                    else
-                        Credits = true
-                    end
+                    Credits = not Credits
                 end
                 if Credits == true then
                     if Menu:Button("    | shackled.lua Discord |") then
@@ -13708,8 +13433,7 @@ local unload = false
             Menu:Text("") Menu:SameLine(SHAkMenu.menutransitorstaticreversed,SHAkMenu.menutransitorstaticreversed) Menu:CheckBox(" Send Chat Messages", SHAkMenu.ChatMessage)
             Menu:Separator()
         else
-            CommandsList = false
-            Hotkeys = false
+            CommandsList, Hotkeys = false
             SHAkMenu.Open = 0
         end
     end
