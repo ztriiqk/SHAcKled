@@ -1,3 +1,14 @@
 1.19
-Added Hydra Thrust modifier
-Added Hydra Lock modifier
+Fixed various bugs
+/
+> MISCELLANEOUS <
+    Added Teleport to Auto Reply Message;
+    Auto Reply Added possibility to choose more than 1 message and 1 reply 
+        ( Separate by ; )
+        ( if you don't want to reply and its between use, Example: text1; ;text2 );
+    Added First Delay for Pick Pickup;
+/
+> MOVEMENT <
+    > PLAYER <
+        Added No Vehicle Ram
+/
