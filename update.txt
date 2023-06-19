@@ -1,14 +1,15 @@
 1.19
 Fixed various bugs
 /
-> MISCELLANEOUS <
-    Added Teleport to Auto Reply Message;
-    Auto Reply Added possibility to choose more than 1 message and 1 reply 
-        ( Separate by ; )
-        ( if you don't want to reply and its between use, Example: text1; ;text2 );
-    Added First Delay for Pick Pickup;
-/
-> MOVEMENT <
-    > PLAYER <
-        Added No Vehicle Ram
-/
+Added >>
+    > MISCELLANEOUS <
+        > АUTO REPLY <
+            Teleport to Auto Reply Message;
+            Possibility to choose more than 1 message and 1 reply 
+                ( Separate by ; )
+                ( if you don't want to reply and its between use, Example: text1; ;text2 );
+        > PICK PICKUP <
+            First Delay for Pick Pickup;
+    > MOVEMENT <
+        > PLAYER <
+            No Vehicle Ram
