@@ -4,7 +4,7 @@ Added >>
     > MISCELLANEOUS <
         > АUTO REPLY <
             Teleport to Auto Reply Message;
-            Possibility to choose more than 1 message and 1 reply 
+            Possibility to choose more than 1 message & reply 
                 ( Separate by ; )
                 ( if you don't want to reply and its between use, Example: text1; ;text2 );
         > PICK PICKUP <
