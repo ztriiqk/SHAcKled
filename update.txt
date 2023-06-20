@@ -12,3 +12,5 @@ Added >>
     > MOVEMENT <
         > PLAYER <
             No Vehicle Ram
+    > Vehicle <
+            Fast Exit Type Legit, can choose delay
