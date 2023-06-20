@@ -2,6 +2,7 @@
 Fixed various bugs
 Added >>
     > MISCELLANEOUS <
+        > Auto C+ <
         > АUTO REPLY <
             Teleport to Auto Reply Message;
             Possibility to choose more than 1 message & reply 
