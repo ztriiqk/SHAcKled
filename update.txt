@@ -1,17 +1,2 @@
-1.20
-Fixed various bugs
-Added >>
-    > MISCELLANEOUS <
-        > Auto C+ <
-        > АUTO REPLY <
-            Teleport to Auto Reply Message;
-            Possibility to choose more than 1 message & reply 
-                ( Separate by ; )
-                ( if you don't want to reply and its between use, Example: text1; ;text2 );
-        > PICK PICKUP <
-            First Delay for Pick Pickup;
-    > MOVEMENT <
-        > PLAYER <
-            No Vehicle Ram
-    > Vehicle <
-            Fast Exit Type Legit, can choose delay
+1.20.1
+Fixed error with packet 200 (Driver Sync)
