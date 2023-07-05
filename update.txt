@@ -1,3 +1,4 @@
-1.21
+1.21.1
 Fixed crash on reconnect
 Added HeavyFist Method on slide, works for all weapons (Now you can slide in bUseCJWalk = false)
+Added possibility to slide without switching weapon (Dont switch weapon in menu)
