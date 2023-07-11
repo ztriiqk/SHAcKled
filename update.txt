@@ -1,3 +1,3 @@
-2.0
-Fixed fps issues
-Changed how config saves and loads (Should delete old configs)
+2.0.1
+Fixed error on config added in the last update
+Added no fall and no ram timer
