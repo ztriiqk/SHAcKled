@@ -1,3 +1,5 @@
-2.0.1
-Fixed error on config added in the last update
-Added no fall and no ram timer
+2.0.2
+Added timer in NoFall and NoRam
+Added auto 2-2
+Added Keys for Bike/Bicycle Spam
+Added Search for best gun in Auto Slide
