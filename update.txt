@@ -1,5 +1,3 @@
-2.0.2
-Added timer in NoFall and NoRam
-Added auto 2-2
-Added Keys for Bike/Bicycle Spam
-Added Search for best gun in Auto Slide
+2.0.3
+Added fuckkeystrokes for slots
+Added Godmode onkey
