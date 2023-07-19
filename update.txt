@@ -1,3 +1,2 @@
-2.0.3.1
-Added fuckkeystrokes for slots
-Added Godmode onkey
+2.0.3.2
+Small fixes
