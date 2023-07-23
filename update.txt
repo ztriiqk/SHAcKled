@@ -1,2 +1,2 @@
-2.0.3.3
-Fixed crash on exit vehicles / Reconnect
+2.0.4
+Fixed reconnect function and Fast Exit not working on Passenger, added Fast Enter
