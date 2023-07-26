@@ -1,3 +1,5 @@
-2.0.5
+2.0.5.1
 Added Aspect Ratio / Game brightness
 Added Damage Multiplier
+Added Sprinthook in Movement > Player
+Rework Auto Switch Speed SetPlayerVelocity
