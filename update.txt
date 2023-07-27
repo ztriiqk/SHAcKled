@@ -1,5 +1,4 @@
-2.0.5.1
-Added Aspect Ratio / Game brightness
-Added Damage Multiplier
-Added Sprinthook in Movement > Player
-Rework Auto Switch Speed SetPlayerVelocity
+2.0.5.2
+Fixed Sprinthook working on bicycles
+Added a method to fix Weapons not aiming if macro run or sprinthook is enabled
+Added Fov Changer
