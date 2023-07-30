@@ -1,4 +1,5 @@
-2.0.5.2
-Fixed Sprinthook working on bicycles
-Added a method to fix Weapons not aiming if macro run or sprinthook is enabled
-Added Fov Changer
+2.0.5.3
+Added Weapon slot in Damager Multiplier
+Added Lagshot in Silent (Still in testing)
+Added DrawDistance
+Removed Brightness
