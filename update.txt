@@ -1,5 +1,2 @@
-2.0.5.3
-Added Weapon slot in Damager Multiplier
-Added Lagshot in Silent (Still in testing)
-Added DrawDistance
-Removed Brightness
+2.0.5.4
+Rework silent lagshot
