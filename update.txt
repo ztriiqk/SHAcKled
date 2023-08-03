@@ -1,2 +1,4 @@
-2.0.5.5
-Rework silent lagshot
+2.0.6
+Added Delay per bullet in damager
+Added Chat commands
+Fixed Force skin not appearing in menu
