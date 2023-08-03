@@ -1,4 +1,5 @@
 2.0.6
 Added Delay per bullet in damager
+Moved Auto Reply & Send CMD to Chat tab in Miscellaneous
 Added Chat commands
 Fixed Force skin not appearing in menu
