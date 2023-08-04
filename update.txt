@@ -1,4 +1,4 @@
-2.0.6
+2.0.6.1
 Added Delay per bullet in damager
 Moved Auto Reply & Send CMD to Chat tab in Miscellaneous
 Added Chat commands
