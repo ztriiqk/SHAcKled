@@ -1,4 +1,4 @@
-2.0.6.2
+2.0.6.3
 Added Damage multiplier to all players in stream
 Added Ignore same Color in damage multiplier
 Added block weapon switch inputs while sliding
