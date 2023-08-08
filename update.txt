@@ -1,5 +1,5 @@
-2.0.6.1
-Added Delay per bullet in damager
-Moved Auto Reply & Send CMD to Chat tab in Miscellaneous
-Added Chat commands
-Fixed Force skin not appearing in menu
+2.0.6.2
+Added Damage multiplier to all players in stream
+Added Ignore same Color in damage multiplier
+Added block weapon switch inputs while sliding
+Added ability to toggle on/off send Aim Sync in damager
