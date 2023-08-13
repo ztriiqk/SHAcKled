@@ -1,5 +1,4 @@
-2.0.6.3
-Added Damage multiplier to all players in stream
-Added Ignore same Color in damage multiplier
-Added block weapon switch inputs while sliding
-Added ability to toggle on/off send Aim Sync in damager
+2.0.7
+Changed All Streamed in Damage Multiplier, now can choose which slot to use it
+Added fov mode in damager
+Several fixes
