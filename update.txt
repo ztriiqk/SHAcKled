@@ -1,5 +1,5 @@
 2.0.7.1
 Changed All Streamed in Damage Multiplier, now can choose which slot to use it
-Added fov mode in damager
+Added fov mode in Damager
 Added show hitpos in Silent
 Several fixes
