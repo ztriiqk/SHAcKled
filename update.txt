@@ -1,5 +1,4 @@
-2.0.7.3
-Changed All Streamed in Damage Multiplier, now can choose which slot to use it
-Added fov mode in Damager
-Added show hitpos in Silent
-Several fixes
+2.0.8
+Added clientside velocity limiter
+Added Delay for anti deattach trailer
+Added Fast Stop vehicle
