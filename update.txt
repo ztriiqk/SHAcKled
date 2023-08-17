@@ -1,4 +1,4 @@
-2.0.9.1
+2.0.9.2
 Added Give Health / Armour, possibility to choose onkey and progressive 
 Added Pick Pickup non streamed
 Added auto save config, if you suddenly crash and didn't save the config, you can get it back
