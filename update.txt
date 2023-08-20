@@ -1,4 +1,5 @@
 2.2
+Added Pickup range, from min id to max id
 Added CrouchHook
 Fixed errors added in the last update
 
