@@ -1,2 +1,2 @@
-2.2.4
-Fix FakeLag Peek lag issue
+2.2.5
+Fixes
