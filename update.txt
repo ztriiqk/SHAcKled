@@ -1,2 +1,2 @@
-2.3.1
-Code improvement + Fixes
+2.3.2
+Added anti freeze options
