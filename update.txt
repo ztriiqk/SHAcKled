@@ -1,2 +1,2 @@
-2.4
-Fixed Slide (from animation detection to game memory)
+2.4.1
+Added playerlist
