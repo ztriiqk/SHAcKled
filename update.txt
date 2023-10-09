@@ -1,2 +1,11 @@
-2.4.1
-Added playerlist
+2.5
+Added Player List TAB
+Ignore Onfoot data
+Ignore Incar data
+Ignore Bullet data
+Hide Player
+Bring Player
+Change Color
+
+Added Hide AttachObjects While Sniper aiming (Extra TAB)
+Added NOP Weapons Update (Extra TAB)
