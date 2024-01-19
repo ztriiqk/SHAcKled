@@ -1,5 +1,3 @@
-2.6
-Added Always Head
-Added Triggerbot (In tests)
-Added Others tab in AIM
-Fixed issues with slide not detecting surfaces correctly
+2.6.1
+Added Break Animation in Slide 
+Added Anti Fire Explosion in Vehicle Tab
