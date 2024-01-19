@@ -1,3 +1,3 @@
 2.6.1
 Added Break Animation in Slide 
-Added Anti Fire Explosion in Vehicle Tab
+Added Anti Fire Explosion in Vehicle Tab (Only working on Cars and Bikes)
