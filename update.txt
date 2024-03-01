@@ -1,3 +1,5 @@
-2.7.2
+3.0
 [+] Heavy Fist Camera Mode
+[+] Heavy Fist performance
+[+] Fixed Slide performance
 [+] Reworked on some functions, may have changed the place
